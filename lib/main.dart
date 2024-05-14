@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -80,7 +78,7 @@ class _GameBoardState extends State<GameBoard> {
     });
   }
 
-  inBoard(int rank, file) => rank >= 0 && rank < 8 && file >= 0 && file < 8;
+  inBoard(int rank, int file) => rank >= 0 && rank < 8 && file >= 0 && file < 8;
 
   (int rank, int file) getKing(bool isWhite) => board.keys.firstWhere((pos) =>
       board[pos]?.type == ChessPieceType.king &&
@@ -105,20 +103,20 @@ class _GameBoardState extends State<GameBoard> {
     final attack1 = (rank + direction, file + 1);
     final attack2 = (rank + direction, file - 1);
     return [
-      if (board[move1] == null)
-        move1,
+      if (board[move1] == null) move1,
       // TODO: Fix up attack logic
       // TODO: En Passant Rules
-      if (board[attack1]?.isWhite == !pawn.isWhite)
-        attack1,
-      if (board[attack2]?.isWhite == !pawn.isWhite)
-        attack2,
-      if (board[move1] == null && board[move2] == null && notMoved)
-        move2,
+      if (board[attack1]?.isWhite == !pawn.isWhite) attack1,
+      if (board[attack2]?.isWhite == !pawn.isWhite) attack2,
+      if (board[move1] == null && board[move2] == null && notMoved) move2,
     ];
   }
 
-  List<(int, int)> calculateRawValidMoves(int rank, int file, ChessPiece piece) {
+  List<(int, int)> calculateRawValidMoves(
+    int rank,
+    int file,
+    ChessPiece piece,
+  ) {
     List<(int, int)> moves = switch (piece.type) {
       ChessPieceType.pawn => calculatePawnMoves(rank, file, piece),
       ChessPieceType.knight => [
@@ -141,34 +139,39 @@ class _GameBoardState extends State<GameBoard> {
           (rank - 1, file + 1),
           (rank, file - 1),
           (rank, file + 1),
+          if (canCastle(rank, file, piece, (r) => r, (f) => f + 1))
+            (rank, file + 2),
+          if (canCastle(rank, file, piece, (r) => r, (f) => f - 1))
+            (rank, file - 2),
         ],
       // TODO: Castle
       ChessPieceType.rook => [
-        ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f),
-        ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f),
-        ...calculateMoves(rank, file, piece, (r) => r, (f) => f + 1),
-        ...calculateMoves(rank, file, piece, (r) => r, (f) => f - 1),
-      ],
-      ChessPieceType.bishop =>  [
-        ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f + 1),
-        ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f - 1),
-        ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f + 1),
-        ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f - 1),
-      ],
+          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f),
+          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f),
+          ...calculateMoves(rank, file, piece, (r) => r, (f) => f + 1),
+          ...calculateMoves(rank, file, piece, (r) => r, (f) => f - 1),
+        ],
+      ChessPieceType.bishop => [
+          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f + 1),
+          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f - 1),
+          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f + 1),
+          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f - 1),
+        ],
       ChessPieceType.queen => [
-        ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f),
-        ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f),
-        ...calculateMoves(rank, file, piece, (r) => r, (f) => f + 1),
-        ...calculateMoves(rank, file, piece, (r) => r, (f) => f - 1),
-        ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f + 1),
-        ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f - 1),
-        ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f + 1),
-        ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f - 1),
-      ],
+          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f),
+          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f),
+          ...calculateMoves(rank, file, piece, (r) => r, (f) => f + 1),
+          ...calculateMoves(rank, file, piece, (r) => r, (f) => f - 1),
+          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f + 1),
+          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f - 1),
+          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f + 1),
+          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f - 1),
+        ],
     };
-    // TODO: Castle
-    moves.removeWhere(
-        (pos) => pos.$1 < 0 || pos.$1 > 7 || pos.$2 < 0 || pos.$2 > 7 || board[pos]?.isWhite == piece.isWhite);
+    moves.removeWhere((pos) {
+      final (r, f) = pos;
+      return !inBoard(r, f) || board[pos]?.isWhite == piece.isWhite;
+    });
     return moves;
   }
 
@@ -192,20 +195,42 @@ class _GameBoardState extends State<GameBoard> {
     return moves;
   }
 
-  List<(int, int)> calculateRealValidMoves(int rank, int file, ChessPiece piece, bool checkSimulation) {
-      final rawMoves = calculateRawValidMoves(rank, file, piece);
-      List<(int, int)> realMoves = [];
-      if (checkSimulation) {
-        for (final move in rawMoves) {
-          final (r, f) = move;
-          if (simulatedMoveIsSafe(piece, (rank, file), move)) {
-            realMoves.add(move);
-          }
-        }
-      } else {
-        realMoves = rawMoves;
+  bool canCastle(
+    int rank,
+    int file,
+    ChessPiece king,
+    int Function(int) nextRank,
+    int Function(int) nextFile,
+  ) {
+    // TODO: Check if king has moved
+    while (true) {
+      rank = nextRank(rank);
+      file = nextFile(file);
+      if (!inBoard(rank, file)) return false;
+      final pos = (rank, file);
+      final piece = board[pos];
+      if (piece != null) {
+        // TODO: Check if rook has moved
+        return piece.type == ChessPieceType.rook &&
+            piece.isWhite == king.isWhite;
       }
-      return realMoves;
+    }
+  }
+
+  List<(int, int)> calculateRealValidMoves(
+      int rank, int file, ChessPiece piece, bool checkSimulation) {
+    final rawMoves = calculateRawValidMoves(rank, file, piece);
+    List<(int, int)> realMoves = [];
+    if (checkSimulation) {
+      for (final move in rawMoves) {
+        if (simulatedMoveIsSafe(piece, (rank, file), move)) {
+          realMoves.add(move);
+        }
+      }
+    } else {
+      realMoves = rawMoves;
+    }
+    return realMoves;
   }
 
   // TODO: Make a copy of the state instead of altering the current board
@@ -213,6 +238,8 @@ class _GameBoardState extends State<GameBoard> {
     ChessPiece? toBefore = board[to];
     board.remove(from);
     board[to] = piece;
+    // TODO: Handle Castling
+    // TODO: Handle En Passant
 
     bool isSafe = !isKingInCheck(piece.isWhite);
 
@@ -226,10 +253,24 @@ class _GameBoardState extends State<GameBoard> {
     return isSafe;
   }
 
+
   void movePiece(int rank, int file) {
     final piece = board[selected];
     if (piece == null) return;
     setState(() {
+      // If castling, move rook
+      if (piece.type == ChessPieceType.king) {
+        final dif = file - selected!.$2;
+        final rook = board.remove(switch(dif) {
+          2 => (rank, 7),
+          -2 => (rank, 0),
+          _ => null
+        });
+        if (rook != null) {
+          board[(rank, file - dif ~/ 2)] = rook;
+        }
+      }
+
       board[(rank, file)] = piece;
       board.remove(selected);
       selected = null;
