@@ -25,7 +25,7 @@ class GameBoardWidget extends StatefulWidget {
 }
 
 class _GameBoardWidgetState extends State<GameBoardWidget> {
-  GameBoard board = GameBoard({
+  GameBoard board = GameBoard(board:{
     (1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 1): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 2): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
@@ -130,8 +130,12 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
 
 class GameBoard {
   final Map<(int rank, int file), ChessPiece> _board;
+  final int turn;
 
-  GameBoard(this._board);
+  GameBoard({
+    this.turn = 1,
+    required Map<(int rank, int file), ChessPiece> board,
+  }) : _board = board;
 
   ChessPiece? operator []((int, int) pos) => _board[pos]; // get
 
@@ -156,7 +160,6 @@ class GameBoard {
     final direction = pawn.isWhite ? 1 : -1;
     final move1 = (rank + direction, file);
     final move2 = (rank + direction * 2, file);
-    final notMoved = pawn.isWhite ? rank == 1 : rank == 6;
     final attack1 = (rank + direction, file + 1);
     final attack2 = (rank + direction, file - 1);
     return [
@@ -165,7 +168,7 @@ class GameBoard {
       // TODO: En Passant Rules
       if (_board[attack1]?.isWhite == !pawn.isWhite) attack1,
       if (_board[attack2]?.isWhite == !pawn.isWhite) attack2,
-      if (_board[move1] == null && _board[move2] == null && notMoved) move2,
+      if (_board[move1] == null && _board[move2] == null && pawn.firstMoved == null) move2,
     ];
   }
 
@@ -257,7 +260,7 @@ class GameBoard {
       int Function(int) nextRank,
       int Function(int) nextFile,
       ) {
-    // TODO: Check if king has moved
+    if (king.firstMoved != null) return false;
     while (true) {
       rank = nextRank(rank);
       file = nextFile(file);
@@ -265,8 +268,8 @@ class GameBoard {
       final pos = (rank, file);
       final piece = _board[pos];
       if (piece != null) {
-        // TODO: Check if rook has moved
         return piece.type == ChessPieceType.rook &&
+            piece.firstMoved == null &&
             piece.isWhite == king.isWhite;
       }
     }
@@ -293,7 +296,9 @@ class GameBoard {
     final next = Map<(int, int), ChessPiece>.from(_board);
     final piece = next.remove(from);
     if (piece != null) {
-      next[to] = piece;
+      next[to] = piece.firstMoved == null
+          ? ChessPiece.from(from: piece, firstMoved: turn)
+          : piece;
     }
 
     // Castle Logic
@@ -305,13 +310,15 @@ class GameBoard {
         _ => null
       });
       if (rook != null) {
-        next[(from.$1, from.$2 + dif ~/ 2)] = rook;
+        next[(from.$1, from.$2 + dif ~/ 2)] = rook.firstMoved == null
+            ? ChessPiece.from(from: rook, firstMoved: turn)
+            : rook;
       }
     }
 
     // TODO: En Passant
 
-    return GameBoard(next);
+    return GameBoard(turn: turn + 1, board: next);
   }
 }
 
@@ -358,9 +365,21 @@ class ChessPiece {
   final ChessPieceType type;
   final bool isWhite;
   final String imagePath;
+  final int? firstMoved;
 
   ChessPiece({
     required this.type,
     required this.isWhite,
+    this.firstMoved,
   }) : imagePath = 'assets/${isWhite ? 'white' : 'black'}/${type.name}.svg';
+
+  ChessPiece.from({
+    required ChessPiece from,
+    ChessPieceType? type,
+    int? firstMoved,
+  }) : this(
+    type: type ?? from.type,
+    isWhite: from.isWhite,
+    firstMoved: firstMoved ?? from.firstMoved,
+  );
 }
