@@ -328,7 +328,12 @@ class GameBoard {
       }
     }
 
-    // TODO: En Passant
+    // En Passant
+    if (piece?.type == ChessPieceType.pawn
+        && from.$2 != to.$2 // is an attack
+        && _board[to] == null) {
+      next.remove((from.$1, to.$2));
+    }
 
     return GameBoard(turn: turn + 1, board: next);
   }
