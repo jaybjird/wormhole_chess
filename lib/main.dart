@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -25,8 +27,8 @@ class GameBoardWidget extends StatefulWidget {
 }
 
 class _GameBoardWidgetState extends State<GameBoardWidget> {
-  GameBoard board = GameBoard(board:{
-    (1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+  GameBoard board = GameBoard(turn: 2, board:{
+    (3, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, firstMoved: 1),
     (1, 1): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 2): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 3): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
@@ -35,15 +37,15 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     (1, 6): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 7): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook),
-    (0, 1): ChessPiece(isWhite: true, type: ChessPieceType.knight),
-    (0, 2): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    (0, 3): ChessPiece(isWhite: true, type: ChessPieceType.queen),
+    // (0, 1): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    // (0, 2): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    // (0, 3): ChessPiece(isWhite: true, type: ChessPieceType.queen),
     (0, 4): ChessPiece(isWhite: true, type: ChessPieceType.king),
-    (0, 5): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    (0, 6): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    // (0, 5): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    // (0, 6): ChessPiece(isWhite: true, type: ChessPieceType.knight),
     (0, 7): ChessPiece(isWhite: true, type: ChessPieceType.rook),
     (6, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    (3, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 2): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 3): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 4): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
@@ -162,13 +164,23 @@ class GameBoard {
     final move2 = (rank + direction * 2, file);
     final attack1 = (rank + direction, file + 1);
     final attack2 = (rank + direction, file - 1);
+    bool canAttack((int, int) attack) {
+      if (_board[attack] != null) {
+        return _board[attack]?.isWhite == !pawn.isWhite;
+      }
+      final piece = _board[(rank, attack.$2)];
+      return piece != null
+          && piece.type == ChessPieceType.pawn
+          && piece.isWhite == !pawn.isWhite
+          && piece.firstMoved == turn - 1
+          && rank == (piece.isWhite ? 3 : 4);
+    }
+    canAttack(attack1);
     return [
       if (_board[move1] == null) move1,
-      // TODO: Fix up attack logic
-      // TODO: En Passant Rules
-      if (_board[attack1]?.isWhite == !pawn.isWhite) attack1,
-      if (_board[attack2]?.isWhite == !pawn.isWhite) attack2,
       if (_board[move1] == null && _board[move2] == null && pawn.firstMoved == null) move2,
+      if (canAttack(attack1)) attack1,
+      if (canAttack(attack2)) attack2,
     ];
   }
 
