@@ -28,7 +28,7 @@ class GameBoardWidget extends StatefulWidget {
 
 class _GameBoardWidgetState extends State<GameBoardWidget> {
   GameBoard board = GameBoard(turn: 2, board:{
-    (3, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, firstMoved: 1),
+    (1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 1): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 2): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 3): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
@@ -37,15 +37,15 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     (1, 6): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 7): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook),
-    // (0, 1): ChessPiece(isWhite: true, type: ChessPieceType.knight),
-    // (0, 2): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    // (0, 3): ChessPiece(isWhite: true, type: ChessPieceType.queen),
+    (0, 1): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    (0, 2): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    (0, 3): ChessPiece(isWhite: true, type: ChessPieceType.queen),
     (0, 4): ChessPiece(isWhite: true, type: ChessPieceType.king),
-    // (0, 5): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    // (0, 6): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    (0, 5): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    (0, 6): ChessPiece(isWhite: true, type: ChessPieceType.knight),
     (0, 7): ChessPiece(isWhite: true, type: ChessPieceType.rook),
     (6, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (3, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    (6, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 2): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 3): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 4): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
@@ -65,6 +65,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
   (int rank, int file)? selected;
 
   List<(int rank, int file)> validMoves = [];
+  List<(int rank, int file)> threatenOnly = [];
 
   void selectPiece(int rank, int file) {
     setState(() {
@@ -73,9 +74,16 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
       if (piece != null) {
         selected = pos;
         validMoves = board.calculateRealValidMoves(rank, file, piece, true);
+        threatenOnly = [
+          if (piece.type == ChessPieceType.pawn)
+            for (final attack in board.calculatePawnAttacks(rank, file, piece))
+              if (!validMoves.contains(attack))
+                attack,
+        ];
       } else {
         selected = null;
         validMoves = [];
+        threatenOnly = [];
       }
     });
   }
@@ -87,6 +95,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
       }
       selected = null;
       validMoves = [];
+      threatenOnly = [];
       // TODO: Do something with check
       if (board.isKingInCheck(true)) {
         print("White in check");
@@ -118,6 +127,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
                               : () => selectPiece(rank, file),
                           isSelected: selected == (rank, file),
                           isValidMove: validMoves.contains((rank, file)),
+                          isThreatened: threatenOnly.contains((rank, file)),
                         ),
                       ),
                   ],
@@ -158,12 +168,15 @@ class GameBoard {
     });
   }
 
+  List<(int rank, int file)> calculatePawnAttacks(int rank, int file, ChessPiece pawn) {
+    final direction = pawn.isWhite ? 1 : -1;
+    return [(rank + direction, file + 1), (rank + direction, file - 1)];
+  }
+
   List<(int rank, int file)> calculatePawnMoves(int rank, int file, ChessPiece pawn) {
     final direction = pawn.isWhite ? 1 : -1;
     final move1 = (rank + direction, file);
     final move2 = (rank + direction * 2, file);
-    final attack1 = (rank + direction, file + 1);
-    final attack2 = (rank + direction, file - 1);
     bool canAttack((int, int) attack) {
       if (_board[attack] != null) {
         return _board[attack]?.isWhite == !pawn.isWhite;
@@ -175,12 +188,11 @@ class GameBoard {
           && piece.firstMoved == turn - 1
           && rank == (piece.isWhite ? 3 : 4);
     }
-    canAttack(attack1);
     return [
       if (_board[move1] == null) move1,
       if (_board[move1] == null && _board[move2] == null && pawn.firstMoved == null) move2,
-      if (canAttack(attack1)) attack1,
-      if (canAttack(attack2)) attack2,
+      for (final attack in calculatePawnAttacks(rank, file, pawn))
+        if (canAttack(attack)) attack,
     ];
   }
 
@@ -344,6 +356,7 @@ class Square extends StatelessWidget {
   final ChessPiece? piece;
   final bool isSelected;
   final bool isValidMove;
+  final bool isThreatened;
   final void Function() onTap;
 
   const Square({
@@ -352,12 +365,14 @@ class Square extends StatelessWidget {
     this.piece,
     required this.isSelected,
     required this.isValidMove,
+    required this.isThreatened,
     required this.onTap,
   });
 
   Color get color {
     if (isSelected) return Colors.green;
     if (isValidMove) return Colors.green[200]!;
+    if (isThreatened) return Colors.yellow[200]!;
     return Colors.grey[isWhite ? 300 : 600]!;
   }
 
