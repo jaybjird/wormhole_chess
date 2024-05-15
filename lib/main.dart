@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -64,8 +62,9 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
 
   (int rank, int file)? selected;
 
-  List<(int rank, int file)> validMoves = [];
-  List<(int rank, int file)> threatenOnly = [];
+  List<(int rank, int file)> possibleMoves = [],
+      validMoves = [],
+      invalidPawnAttacks = [];
 
   void selectPiece(int rank, int file) {
     setState(() {
@@ -73,8 +72,10 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
       final piece = board[pos];
       if (piece != null) {
         selected = pos;
-        validMoves = board.calculateRealValidMoves(rank, file, piece, true);
-        threatenOnly = [
+        // TODO: Currently calls [calculateRawValidMoves] twice. Consider optimizing this
+        possibleMoves = board.calculateRawValidMoves(rank, file, piece);
+        validMoves = board.calculateRealValidMoves(rank, file, piece);
+        invalidPawnAttacks = [
           if (piece.type == ChessPieceType.pawn)
             for (final attack in board.calculatePawnAttacks(rank, file, piece))
               if (!validMoves.contains(attack))
@@ -83,7 +84,8 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
       } else {
         selected = null;
         validMoves = [];
-        threatenOnly = [];
+        possibleMoves = [];
+        invalidPawnAttacks = [];
       }
     });
   }
@@ -95,7 +97,8 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
       }
       selected = null;
       validMoves = [];
-      threatenOnly = [];
+      possibleMoves = [];
+      invalidPawnAttacks = [];
       // TODO: Do something with check
       if (board.isKingInCheck(true)) {
         print("White in check");
@@ -127,7 +130,8 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
                               : () => selectPiece(rank, file),
                           isSelected: selected == (rank, file),
                           isValidMove: validMoves.contains((rank, file)),
-                          isThreatened: threatenOnly.contains((rank, file)),
+                          isInvalidPawnAttack: invalidPawnAttacks.contains((rank, file)),
+                          isThreatened: possibleMoves.contains((rank, file)) && !validMoves.contains((rank, file)),
                         ),
                       ),
                   ],
@@ -300,19 +304,11 @@ class GameBoard {
   }
 
   List<(int rank, int file)> calculateRealValidMoves(
-      int rank, int file, ChessPiece piece, bool checkSimulation) {
-    final rawMoves = calculateRawValidMoves(rank, file, piece);
-    List<(int, int)> realMoves = [];
-    if (checkSimulation) {
-      for (final move in rawMoves) {
-        if (!movePiece((rank, file), move).isKingInCheck(piece.isWhite)) {
-          realMoves.add(move);
-        }
-      }
-    } else {
-      realMoves = rawMoves;
-    }
-    return realMoves;
+      int rank, int file, ChessPiece piece) {
+    return [
+      for (final move in calculateRawValidMoves(rank, file, piece))
+        if (!movePiece((rank, file), move).isKingInCheck(piece.isWhite)) move,
+    ];
   }
 
   /// Returns a new [GameBoard] where the [ChessPiece] at position [from] is moved to position [to].
@@ -356,6 +352,7 @@ class Square extends StatelessWidget {
   final ChessPiece? piece;
   final bool isSelected;
   final bool isValidMove;
+  final bool isInvalidPawnAttack;
   final bool isThreatened;
   final void Function() onTap;
 
@@ -365,6 +362,7 @@ class Square extends StatelessWidget {
     this.piece,
     required this.isSelected,
     required this.isValidMove,
+    required this.isInvalidPawnAttack,
     required this.isThreatened,
     required this.onTap,
   });
@@ -372,7 +370,8 @@ class Square extends StatelessWidget {
   Color get color {
     if (isSelected) return Colors.green;
     if (isValidMove) return Colors.green[200]!;
-    if (isThreatened) return Colors.yellow[200]!;
+    if (isInvalidPawnAttack) return Colors.yellow[300]!;
+    if (isThreatened) return Colors.red[500]!;
     return Colors.grey[isWhite ? 300 : 600]!;
   }
 
