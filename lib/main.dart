@@ -571,3 +571,70 @@ class WarpingCornerClipper extends CustomClipper<Path> {
     return true;
   }
 }
+
+class SquareWithArcClipper extends CustomClipper<Path> {
+  final double innerRadius;
+  final double startAngle;
+  final double sweepAngle;
+
+  SquareWithArcClipper({
+    required this.innerRadius,
+    required this.startAngle,
+    required this.sweepAngle,
+  });
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // Move to first corner
+    final startAngleRad = startAngle * (3.1415926535897932 / 180);
+    double c1 = cos(startAngleRad);
+    double s1 = sin(startAngleRad);
+    double x1 = center.dx + innerRadius * c1;
+    double y1 = center.dy + innerRadius * s1;
+    path.moveTo(x1, y1);
+
+    // Draw an arc to the second corner
+    final sweepAngleRad = sweepAngle * (3.1415926535897932 / 180);
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      startAngleRad,
+      sweepAngleRad,
+      false,
+    );
+
+    // Calculate the position of the second corner
+    double c2 = cos(startAngleRad + sweepAngleRad);
+    double s2 = sin(startAngleRad + sweepAngleRad);
+    double x2 = center.dx + innerRadius * c2;
+    double y2 = center.dy + innerRadius * s2;
+
+    // Rotate the angle by 45 degrees and take the tangent. If the tangent
+    // is greater than zero, then the square is east/west oriented,
+    // otherwise it is north/south oriented
+    final orientation = tan(startAngleRad + 45 * (3.1415926535897932 / 180));
+
+    // Draw lines to the third and fourth corners
+    if (orientation > 0) {
+      final x3 = (x1 * c2 < x2 * c2 ? x1 : x2) + y2 - y1;
+      path.lineTo(x3, y2);
+      path.lineTo(x3, y1);
+    } else {
+      final y3 = (y1 * s2 < y2 * s2 ? y1 : y2) - x2 + x1;
+      path.lineTo(x2, y3);
+      path.lineTo(x1, y3);
+    }
+
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return true;
+  }
+}
