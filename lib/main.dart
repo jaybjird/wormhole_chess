@@ -511,3 +511,63 @@ class RingSegmentClipper extends CustomClipper<Path> {
     return true;
   }
 }
+
+class WarpingCornerClipper extends CustomClipper<Path> {
+  final double innerRadius;
+  final double outerRadius;
+  final double startAngle;
+  final double sweepAngle;
+
+  WarpingCornerClipper({
+    required this.innerRadius,
+    required this.outerRadius,
+    required this.startAngle,
+    required this.sweepAngle,
+  });
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    final startAngleRad = startAngle * (3.1415926535897932 / 180);
+    final sweepAngleRad = sweepAngle * (3.1415926535897932 / 180);
+
+    path.moveTo(center.dx + innerRadius * cos(startAngleRad),
+        center.dy + innerRadius * sin(startAngleRad));
+
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      startAngleRad,
+      sweepAngleRad,
+      false,
+    );
+
+    path.lineTo(center.dx + outerRadius * cos(startAngleRad + sweepAngleRad),
+        center.dy + outerRadius * sin(startAngleRad + sweepAngleRad));
+
+    if (cos(startAngleRad) * sin(startAngleRad) > 0) {
+      path.lineTo(center.dx + outerRadius * cos(startAngleRad),
+          center.dy + outerRadius * sin(startAngleRad + sweepAngleRad));
+    } else {
+      path.lineTo(center.dx + outerRadius * cos(startAngleRad + sweepAngleRad),
+          center.dy + outerRadius * sin(startAngleRad));
+    }
+
+    path.lineTo(center.dx + outerRadius * cos(startAngleRad),
+        center.dy + outerRadius * sin(startAngleRad));
+
+    path.moveTo(center.dx + innerRadius * cos(startAngleRad + sweepAngleRad),
+        center.dy + innerRadius * sin(startAngleRad + sweepAngleRad));
+
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return true;
+  }
+}
