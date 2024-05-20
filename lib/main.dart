@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:math';
 
 void main() {
   runApp(const MyApp());
@@ -455,4 +456,58 @@ class ChessPiece {
           isWhite: from.isWhite,
           firstMoved: firstMoved ?? from.firstMoved,
         );
+}
+
+
+class RingSegmentClipper extends CustomClipper<Path> {
+  final double innerRadius;
+  final double outerRadius;
+  final double startAngle;
+  final double sweepAngle;
+
+  RingSegmentClipper({
+    required this.innerRadius,
+    required this.outerRadius,
+    required this.startAngle,
+    required this.sweepAngle,
+  });
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    final center = Offset(size.width / 2, size.height / 2);
+
+    final startAngleRad = startAngle * (3.1415926535897932 / 180);
+    final sweepAngleRad = sweepAngle * (3.1415926535897932 / 180);
+
+    path.moveTo(center.dx + innerRadius * cos(startAngleRad),
+        center.dy + innerRadius * sin(startAngleRad));
+
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: outerRadius),
+      startAngleRad,
+      sweepAngleRad,
+      false,
+    );
+
+    path.lineTo(center.dx + outerRadius * cos(startAngleRad + sweepAngleRad),
+        center.dy + outerRadius * sin(startAngleRad + sweepAngleRad));
+
+    path.arcTo(
+      Rect.fromCircle(center: center, radius: innerRadius),
+      startAngleRad + sweepAngleRad,
+      -sweepAngleRad,
+      false,
+    );
+
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return true;
+  }
 }
