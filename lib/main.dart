@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math';
 
+
 void main() {
   runApp(const MyApp());
 }
@@ -18,6 +19,26 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class Position {
+  final int rank, file;
+  Position(this.rank, this.file);
+
+  (int, int) get split => (rank, file);
+
+  bool get inBoard => rank >= 0 && rank < 8 && file >= 0 && file < 8;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Position &&
+          runtimeType == other.runtimeType &&
+          rank == other.rank &&
+          file == other.file;
+
+  @override
+  int get hashCode => rank.hashCode ^ file.hashCode;
+}
+
 class GameBoardWidget extends StatefulWidget {
   const GameBoardWidget({super.key});
 
@@ -27,49 +48,49 @@ class GameBoardWidget extends StatefulWidget {
 
 class _GameBoardWidgetState extends State<GameBoardWidget> {
   GameBoard board = GameBoard(turn: 2, board: {
-    (1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (1, 1): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (1, 2): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    // (1, 3): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    // (1, 4): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (1, 5): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (1, 6): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (1, 7): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook),
-    (0, 1): ChessPiece(isWhite: true, type: ChessPieceType.knight),
-    (0, 2): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    (0, 3): ChessPiece(isWhite: true, type: ChessPieceType.queen),
-    (0, 4): ChessPiece(isWhite: true, type: ChessPieceType.king),
-    (0, 5): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    (0, 6): ChessPiece(isWhite: true, type: ChessPieceType.knight),
-    (0, 7): ChessPiece(isWhite: true, type: ChessPieceType.rook),
-    (6, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 2): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 3): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    // (6, 4): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 5): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 6): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 7): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (7, 0): ChessPiece(isWhite: false, type: ChessPieceType.rook),
-    (7, 1): ChessPiece(isWhite: false, type: ChessPieceType.knight),
-    (7, 2): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
-    (7, 3): ChessPiece(isWhite: false, type: ChessPieceType.queen),
-    (7, 4): ChessPiece(isWhite: false, type: ChessPieceType.king),
-    (7, 5): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
-    (7, 6): ChessPiece(isWhite: false, type: ChessPieceType.knight),
-    (7, 7): ChessPiece(isWhite: false, type: ChessPieceType.rook),
+    Position(1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 1): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 2): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 3): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 4): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 5): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 6): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 7): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook),
+    Position(0, 1): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    Position(0, 2): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    Position(0, 3): ChessPiece(isWhite: true, type: ChessPieceType.queen),
+    Position(0, 4): ChessPiece(isWhite: true, type: ChessPieceType.king),
+    Position(0, 5): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    Position(0, 6): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    Position(0, 7): ChessPiece(isWhite: true, type: ChessPieceType.rook),
+    Position(6, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 2): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 3): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 4): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 5): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 6): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 7): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(7, 0): ChessPiece(isWhite: false, type: ChessPieceType.rook),
+    Position(7, 1): ChessPiece(isWhite: false, type: ChessPieceType.knight),
+    Position(7, 2): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
+    Position(7, 3): ChessPiece(isWhite: false, type: ChessPieceType.queen),
+    Position(7, 4): ChessPiece(isWhite: false, type: ChessPieceType.king),
+    Position(7, 5): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
+    Position(7, 6): ChessPiece(isWhite: false, type: ChessPieceType.knight),
+    Position(7, 7): ChessPiece(isWhite: false, type: ChessPieceType.rook),
   });
 
-  (int rank, int file)? selected;
+  Position? selected;
 
-  List<(int rank, int file)> possibleMoves = [],
+  List<Position> possibleMoves = [],
       validMoves = [],
       invalidPawnAttacks = [];
 
   void selectPiece(int rank, int file) {
     setState(() {
-      final pos = (rank, file);
+      final pos = Position(rank, file);
       final piece = board[pos];
       if (piece != null) {
         selected = pos;
@@ -93,7 +114,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
   void movePiece(int rank, int file) {
     setState(() {
       if (selected != null) {
-        board = board.movePiece(selected!, (rank, file));
+        board = board.movePiece(selected!, Position(rank, file));
       }
       selected = null;
       validMoves = [];
@@ -192,18 +213,21 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     return Stack(children: tiles);
   }
 
-  Tile _buildTile(int rank, int file) => Tile(
-        onTap: validMoves.contains((rank, file))
-            ? () => movePiece(rank, file)
-            : () => selectPiece(rank, file),
-        isSelected: selected == (rank, file),
-        isValidMove: validMoves.contains((rank, file)),
-        isInvalidPawnAttack: invalidPawnAttacks.contains((rank, file)),
-        isThreatened: possibleMoves.contains((rank, file)) &&
-            !validMoves.contains((rank, file)),
-        piece: board[(rank, file)],
-        isWhite: (rank + file) % 2 == 1,
-      );
+  Tile _buildTile(int rank, int file) {
+    final pos = Position(rank, file);
+    return Tile(
+      onTap: validMoves.contains(pos)
+          ? () => movePiece(rank, file)
+          : () => selectPiece(rank, file),
+      isSelected: selected == pos,
+      isValidMove: validMoves.contains(pos),
+      isInvalidPawnAttack: invalidPawnAttacks.contains(pos),
+      isThreatened: possibleMoves.contains(pos) &&
+          !validMoves.contains(pos),
+      piece: board[pos],
+      isWhite: (rank + file) % 2 == 1,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -222,20 +246,17 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
 }
 
 class GameBoard {
-  final Map<(int rank, int file), ChessPiece> _board;
+  final Map<Position, ChessPiece> _board;
   final int turn;
 
   GameBoard({
     this.turn = 1,
-    required Map<(int rank, int file), ChessPiece> board,
+    required Map<Position, ChessPiece> board,
   }) : _board = board;
 
-  ChessPiece? operator []((int, int) pos) => _board[pos]; // get
+  ChessPiece? operator [](Position pos) => _board[pos];
 
-  bool inBoard(int rank, int file) =>
-      rank >= 0 && rank < 8 && file >= 0 && file < 8;
-
-  (int rank, int file) getKing(bool isWhite) => _board.keys.firstWhere((pos) =>
+  Position getKing(bool isWhite) => _board.keys.firstWhere((pos) =>
       _board[pos]?.type == ChessPieceType.king &&
       _board[pos]?.isWhite == isWhite);
 
@@ -244,28 +265,28 @@ class GameBoard {
     return _board.entries.any((e) {
       final piece = e.value;
       if (piece.isWhite == isWhite) return false;
-      final (rank, file) = e.key;
+      final (rank, file) = e.key.split;
       final moves = calculateRawValidMoves(rank, file, piece);
       return moves.any((pos) => pos == kingPosition);
     });
   }
 
-  List<(int rank, int file)> calculatePawnAttacks(
+  List<Position> calculatePawnAttacks(
       int rank, int file, ChessPiece pawn) {
     final direction = pawn.isWhite ? 1 : -1;
-    return [(rank + direction, file + 1), (rank + direction, file - 1)];
+    return [Position(rank + direction, file + 1), Position(rank + direction, file - 1)];
   }
 
-  List<(int rank, int file)> calculatePawnMoves(
+  List<Position> calculatePawnMoves(
       int rank, int file, ChessPiece pawn) {
     final direction = pawn.isWhite ? 1 : -1;
-    final move1 = (rank + direction, file);
-    final move2 = (rank + direction * 2, file);
-    bool canAttack((int, int) attack) {
+    final move1 = Position(rank + direction, file);
+    final move2 = Position(rank + direction * 2, file);
+    bool canAttack(Position attack) {
       if (_board[attack] != null) {
         return _board[attack]?.isWhite == !pawn.isWhite;
       }
-      final piece = _board[(rank, attack.$2)];
+      final piece = _board[(rank, attack.file)];
       return piece != null &&
           piece.type == ChessPieceType.pawn &&
           piece.isWhite == !pawn.isWhite &&
@@ -284,36 +305,36 @@ class GameBoard {
     ];
   }
 
-  List<(int rank, int file)> calculateRawValidMoves(
+  List<Position> calculateRawValidMoves(
     int rank,
     int file,
     ChessPiece piece,
   ) {
-    List<(int, int)> moves = switch (piece.type) {
+    List<Position> moves = switch (piece.type) {
       ChessPieceType.pawn => calculatePawnMoves(rank, file, piece),
       ChessPieceType.knight => [
-          (rank + 1, file + 2),
-          (rank + 1, file - 2),
-          (rank - 1, file + 2),
-          (rank - 1, file - 2),
-          (rank + 2, file + 1),
-          (rank + 2, file - 1),
-          (rank - 2, file + 1),
-          (rank - 2, file - 1),
+          Position(rank + 1, file + 2),
+          Position(rank + 1, file - 2),
+          Position(rank - 1, file + 2),
+          Position(rank - 1, file - 2),
+          Position(rank + 2, file + 1),
+          Position(rank + 2, file - 1),
+          Position(rank - 2, file + 1),
+          Position(rank - 2, file - 1),
         ],
       ChessPieceType.king => [
-          (rank + 1, file),
-          (rank + 1, file - 1),
-          (rank + 1, file + 1),
-          (rank - 1, file),
-          (rank - 1, file - 1),
-          (rank - 1, file + 1),
-          (rank, file - 1),
-          (rank, file + 1),
+          Position(rank + 1, file),
+          Position(rank + 1, file - 1),
+          Position(rank + 1, file + 1),
+          Position(rank - 1, file),
+          Position(rank - 1, file - 1),
+          Position(rank - 1, file + 1),
+          Position(rank, file - 1),
+          Position(rank, file + 1),
           if (canCastle(rank, file, piece, (r) => r, (f) => f + 1))
-            (rank, file + 2),
+            Position(rank, file + 2),
           if (canCastle(rank, file, piece, (r) => r, (f) => f - 1))
-            (rank, file - 2),
+            Position(rank, file - 2),
         ],
       ChessPieceType.rook => [
           ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f),
@@ -338,26 +359,24 @@ class GameBoard {
           ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f - 1),
         ],
     };
-    moves.removeWhere((pos) {
-      final (r, f) = pos;
-      return !inBoard(r, f) || _board[pos]?.isWhite == piece.isWhite;
-    });
+    moves.removeWhere((pos) =>
+    !pos.inBoard || _board[pos]?.isWhite == piece.isWhite);
     return moves;
   }
 
-  List<(int rank, int file)> calculateMoves(
+  List<Position> calculateMoves(
     int rank,
     int file,
     ChessPiece piece,
     int Function(int) nextRank,
     int Function(int) nextFile,
   ) {
-    List<(int, int)> moves = [];
+    List<Position> moves = [];
     while (true) {
       rank = nextRank(rank);
       file = nextFile(file);
-      if (!inBoard(rank, file)) break;
-      final pos = (rank, file);
+      final pos = Position(rank, file);
+      if (!pos.inBoard) break;
       final other = _board[pos];
       moves.add(pos);
       if (other != null) break;
@@ -376,8 +395,8 @@ class GameBoard {
     while (true) {
       rank = nextRank(rank);
       file = nextFile(file);
-      if (!inBoard(rank, file)) return false;
-      final pos = (rank, file);
+      final pos = Position(rank, file);
+      if (!pos.inBoard) return false;
       final piece = _board[pos];
       if (piece != null) {
         return piece.type == ChessPieceType.rook &&
@@ -387,17 +406,17 @@ class GameBoard {
     }
   }
 
-  List<(int rank, int file)> calculateRealValidMoves(
+  List<Position> calculateRealValidMoves(
       int rank, int file, ChessPiece piece) {
     return [
       for (final move in calculateRawValidMoves(rank, file, piece))
-        if (!movePiece((rank, file), move).isKingInCheck(piece.isWhite)) move,
+        if (!movePiece(Position(rank, file), move).isKingInCheck(piece.isWhite)) move,
     ];
   }
 
   /// Returns a new [GameBoard] where the [ChessPiece] at position [from] is moved to position [to].
-  GameBoard movePiece((int rank, int file) from, (int rank, int file) to) {
-    final next = Map<(int, int), ChessPiece>.from(_board);
+  GameBoard movePiece(Position from, Position to) {
+    final next = Map<Position, ChessPiece>.from(_board);
     final piece = next.remove(from);
     if (piece != null) {
       next[to] = piece.firstMoved == null
@@ -407,11 +426,11 @@ class GameBoard {
 
     // Castle Logic
     if (piece?.type == ChessPieceType.king) {
-      final dif = to.$2 - from.$2;
+      final dif = to.file - from.file;
       final rook = next.remove(
-          switch (dif) { 2 => (from.$1, 7), -2 => (from.$1, 0), _ => null });
+          switch (dif) { 2 => (from.rank, 7), -2 => (from.rank, 0), _ => null });
       if (rook != null) {
-        next[(from.$1, from.$2 + dif ~/ 2)] = rook.firstMoved == null
+        next[Position(from.rank, from.file + dif ~/ 2)] = rook.firstMoved == null
             ? ChessPiece.from(from: rook, firstMoved: turn)
             : rook;
       }
@@ -419,10 +438,10 @@ class GameBoard {
 
     // En Passant
     if (piece?.type == ChessPieceType.pawn &&
-        from.$2 != to.$2 // is an attack
+        from.file != to.file // is an attack
         &&
         _board[to] == null) {
-      next.remove((from.$1, to.$2));
+      next.remove((from.rank, to.file));
     }
 
     return GameBoard(turn: turn + 1, board: next);
