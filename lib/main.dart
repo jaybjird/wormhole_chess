@@ -30,8 +30,8 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     (1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 1): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 2): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (1, 3): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    (1, 4): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    // (1, 3): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    // (1, 4): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 5): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 6): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
     (1, 7): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
@@ -47,7 +47,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     (6, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 2): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 3): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    (6, 4): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    // (6, 4): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 5): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 6): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
     (6, 7): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
@@ -109,14 +109,101 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     });
   }
 
-  // piece: board[(rank, file)],
-  // onTap: validMoves.contains((rank, file))
-  //     ? () => movePiece(rank, file)
-  //     : () => selectPiece(rank, file),
-  // isSelected: selected == (rank, file),
-  // isValidMove: validMoves.contains((rank, file)),
-  // isInvalidPawnAttack: invalidPawnAttacks.contains((rank, file)),
-  // isThreatened: possibleMoves.contains((rank, file)) && !validMoves.contains((rank, file)),
+  Widget _buildTiles(BuildContext context, BoxConstraints constraints) {
+    final size = constraints.maxHeight / 8;
+    double outerRadius = size * sqrt(5);
+    double innerRadius = size * 1.6; // approx. avg(sqrt(5) + 1)
+    double voidRadius = size;
+    List<Widget> tiles = [
+      Positioned(left: size * 0, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 0))),
+      Positioned(left: size * 1, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 1))),
+      Positioned(left: size * 2, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 2))),
+      Positioned(left: size * 3, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 3))),
+      Positioned(left: size * 4, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 4))),
+      Positioned(left: size * 5, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 5))),
+      Positioned(left: size * 6, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 6))),
+      Positioned(left: size * 7, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 7))),
+      Positioned(left: size * 0, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 0))),
+      Positioned(left: size * 1, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 1))),
+      Positioned(left: size * 2, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 2))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(6, 3)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(6, 4)),
+      Positioned(left: size * 5, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 5))),
+      Positioned(left: size * 6, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 6))),
+      Positioned(left: size * 7, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 7))),
+      Positioned(left: size * 0, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 0))),
+      Positioned(left: size * 1, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 1))),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4)),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5)),
+      Positioned(left: size * 6, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 6))),
+      Positioned(left: size * 7, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 7))),
+      Positioned(left: size * 0, top: size * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 0))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 6)),
+      Positioned(left: size * 7, top: size * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 7))),
+      Positioned(left: size * 0, top: size * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 0))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 6)),
+      Positioned(left: size * 7, top: size * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 7))),
+      Positioned(left: size * 0, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 0))),
+      Positioned(left: size * 1, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 1))),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5)),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5)),
+      Positioned(left: size * 6, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 6))),
+      Positioned(left: size * 7, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 7))),
+      Positioned(left: size * 0, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 0))),
+      Positioned(left: size * 1, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 1))),
+      Positioned(left: size * 2, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 2))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(1, 3)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(1, 4)),
+      Positioned(left: size * 5, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 5))),
+      Positioned(left: size * 6, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 6))),
+      Positioned(left: size * 7, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 7))),
+      Positioned(left: size * 0, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 0))),
+      Positioned(left: size * 1, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 1))),
+      Positioned(left: size * 2, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 2))),
+      Positioned(left: size * 3, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 3))),
+      Positioned(left: size * 4, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 4))),
+      Positioned(left: size * 5, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 5))),
+      Positioned(left: size * 6, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 6))),
+      Positioned(left: size * 7, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 7))),
+    ];
+
+    return Stack(children: tiles);
+  }
+
+  Tile _buildTile(int rank, int file) => Tile(
+        onTap: validMoves.contains((rank, file))
+            ? () => movePiece(rank, file)
+            : () => selectPiece(rank, file),
+        isSelected: selected == (rank, file),
+        isValidMove: validMoves.contains((rank, file)),
+        isInvalidPawnAttack: invalidPawnAttacks.contains((rank, file)),
+        isThreatened: possibleMoves.contains((rank, file)) &&
+            !validMoves.contains((rank, file)),
+        piece: board[(rank, file)],
+        isWhite: (rank + file) % 2 == 1,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -126,55 +213,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
         child: Center(
           child: AspectRatio(
             aspectRatio: 1,
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    for (int rank = 8; rank-- > 0;)
-                      Row(
-                        children: [
-                          for (int file = 0; file < 8; file++)
-                            Expanded(
-                              child: (rank == 3 || rank == 4) &&
-                                      (file == 3 || file == 4)
-                                  ? Container()
-                                  : Square(
-                                      isWhite: (rank + file) % 2 == 1,
-                                      onTap: () {},
-                                    ),
-                            ),
-                        ],
-                      ),
-                  ],
-                ),
-                LayoutBuilder(builder: (ctx, constraints) {
-                  return Center(
-                    child: SizedBox.square(
-                      dimension: 5 * constraints.maxHeight / 16,
-                      child: Column(
-                        children: [
-                          for (int rank = 6; rank-- > 2;)
-                            Row(
-                              children: [
-                                for (int file = 2; file < 6; file++)
-                                  Expanded(
-                                    child: (rank == 3 || rank == 4) &&
-                                        (file == 3 || file == 4)
-                                        ? Container()
-                                        : Square(
-                                      isWhite: (rank + file) % 2 == 0,
-                                      onTap: () {},
-                                    ),
-                                  ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ],
-            ),
+            child: LayoutBuilder(builder: _buildTiles),
           ),
         ),
       ),
@@ -390,7 +429,7 @@ class GameBoard {
   }
 }
 
-class Square extends StatelessWidget {
+class Tile extends StatelessWidget {
   final bool isWhite;
   final ChessPiece? piece;
   final bool isSelected;
@@ -399,7 +438,7 @@ class Square extends StatelessWidget {
   final bool isThreatened;
   final void Function() onTap;
 
-  const Square({
+  const Tile({
     super.key,
     required this.isWhite,
     this.piece,
@@ -422,12 +461,12 @@ class Square extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Container(
-          color: color,
+      child: Container(
+        color: color,
+        child: AspectRatio(
+          aspectRatio: 1,
           child: piece != null ? SvgPicture.asset(piece!.imagePath) : null,
-        ),
+        )
       ),
     );
   }
