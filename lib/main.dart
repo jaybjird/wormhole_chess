@@ -20,10 +20,10 @@ class MyApp extends StatelessWidget {
 }
 
 class Position {
-  final int rank, file;
-  Position(this.rank, this.file);
+  final int rank, file, layer;
+  Position(this.rank, this.file, this.layer);
 
-  (int, int) get split => (rank, file);
+  (int, int, int) get split => (rank, file, layer);
 
   bool get inBoard => rank >= 0 && rank < 8 && file >= 0 && file < 8;
 
@@ -33,10 +33,11 @@ class Position {
       other is Position &&
           runtimeType == other.runtimeType &&
           rank == other.rank &&
-          file == other.file;
+          file == other.file &&
+          layer == other.layer;
 
   @override
-  int get hashCode => rank.hashCode ^ file.hashCode;
+  int get hashCode => rank.hashCode ^ file.hashCode ^ layer.hashCode;
 }
 
 class GameBoardWidget extends StatefulWidget {
@@ -48,38 +49,38 @@ class GameBoardWidget extends StatefulWidget {
 
 class _GameBoardWidgetState extends State<GameBoardWidget> {
   GameBoard board = GameBoard(turn: 2, board: {
-    Position(1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(1, 1): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(1, 2): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(1, 3): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(1, 4): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(1, 5): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(1, 6): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(1, 7): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
-    Position(0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook),
-    Position(0, 1): ChessPiece(isWhite: true, type: ChessPieceType.knight),
-    Position(0, 2): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    Position(0, 3): ChessPiece(isWhite: true, type: ChessPieceType.queen),
-    Position(0, 4): ChessPiece(isWhite: true, type: ChessPieceType.king),
-    Position(0, 5): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
-    Position(0, 6): ChessPiece(isWhite: true, type: ChessPieceType.knight),
-    Position(0, 7): ChessPiece(isWhite: true, type: ChessPieceType.rook),
-    Position(6, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(6, 1): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(6, 2): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(6, 3): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(6, 4): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(6, 5): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(6, 6): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(6, 7): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
-    Position(7, 0): ChessPiece(isWhite: false, type: ChessPieceType.rook),
-    Position(7, 1): ChessPiece(isWhite: false, type: ChessPieceType.knight),
-    Position(7, 2): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
-    Position(7, 3): ChessPiece(isWhite: false, type: ChessPieceType.queen),
-    Position(7, 4): ChessPiece(isWhite: false, type: ChessPieceType.king),
-    Position(7, 5): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
-    Position(7, 6): ChessPiece(isWhite: false, type: ChessPieceType.knight),
-    Position(7, 7): ChessPiece(isWhite: false, type: ChessPieceType.rook),
+    Position(1, 0, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 2, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 3, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 4, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 5, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 6, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(1, 7, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn),
+    Position(0, 0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook),
+    Position(0, 1, 0): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    Position(0, 2, 0): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    Position(0, 3, 0): ChessPiece(isWhite: true, type: ChessPieceType.queen),
+    Position(0, 4, 0): ChessPiece(isWhite: true, type: ChessPieceType.king),
+    Position(0, 5, 0): ChessPiece(isWhite: true, type: ChessPieceType.bishop),
+    Position(0, 6, 0): ChessPiece(isWhite: true, type: ChessPieceType.knight),
+    Position(0, 7, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook),
+    Position(6, 0, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 1, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 2, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 3, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 4, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 5, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 6, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(6, 7, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn),
+    Position(7, 0, 0): ChessPiece(isWhite: false, type: ChessPieceType.rook),
+    Position(7, 1, 0): ChessPiece(isWhite: false, type: ChessPieceType.knight),
+    Position(7, 2, 0): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
+    Position(7, 3, 0): ChessPiece(isWhite: false, type: ChessPieceType.queen),
+    Position(7, 4, 0): ChessPiece(isWhite: false, type: ChessPieceType.king),
+    Position(7, 5, 0): ChessPiece(isWhite: false, type: ChessPieceType.bishop),
+    Position(7, 6, 0): ChessPiece(isWhite: false, type: ChessPieceType.knight),
+    Position(7, 7, 0): ChessPiece(isWhite: false, type: ChessPieceType.rook),
   });
 
   Position? selected;
@@ -88,18 +89,18 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
       validMoves = [],
       invalidPawnAttacks = [];
 
-  void selectPiece(int rank, int file) {
+  void selectPiece(int rank, int file, int layer) {
     setState(() {
-      final pos = Position(rank, file);
+      final pos = Position(rank, file, layer);
       final piece = board[pos];
       if (piece != null) {
         selected = pos;
         // TODO: Currently calls [calculateRawValidMoves] twice. Consider optimizing this
-        possibleMoves = board.calculateRawValidMoves(rank, file, piece);
-        validMoves = board.calculateRealValidMoves(rank, file, piece);
+        possibleMoves = board.calculateRawValidMoves(rank, file, layer, piece);
+        validMoves = board.calculateRealValidMoves(rank, file, layer, piece);
         invalidPawnAttacks = [
           if (piece.type == ChessPieceType.pawn)
-            for (final attack in board.calculatePawnAttacks(rank, file, piece))
+            for (final attack in board.calculatePawnAttacks(rank, file, layer, piece))
               if (!validMoves.contains(attack)) attack,
         ];
       } else {
@@ -111,10 +112,10 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     });
   }
 
-  void movePiece(int rank, int file) {
+  void movePiece(int rank, int file, int layer) {
     setState(() {
       if (selected != null) {
-        board = board.movePiece(selected!, Position(rank, file));
+        board = board.movePiece(selected!, Position(rank, file, layer));
       }
       selected = null;
       validMoves = [];
@@ -136,96 +137,96 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     double innerRadius = size * 1.6; // approx. avg(sqrt(5) + 1)
     double voidRadius = size;
     List<Widget> tiles = [
-      Positioned(left: size * 0, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 0))),
-      Positioned(left: size * 1, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 1))),
-      Positioned(left: size * 2, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 2))),
-      Positioned(left: size * 3, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 3))),
-      Positioned(left: size * 4, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 4))),
-      Positioned(left: size * 5, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 5))),
-      Positioned(left: size * 6, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 6))),
-      Positioned(left: size * 7, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 7))),
-      Positioned(left: size * 0, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 0))),
-      Positioned(left: size * 1, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 1))),
-      Positioned(left: size * 2, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 2))),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(6, 3)),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(6, 4)),
-      Positioned(left: size * 5, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 5))),
-      Positioned(left: size * 6, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 6))),
-      Positioned(left: size * 7, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 7))),
-      Positioned(left: size * 0, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 0))),
-      Positioned(left: size * 1, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 1))),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4)),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5)),
-      Positioned(left: size * 6, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 6))),
-      Positioned(left: size * 7, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 7))),
-      Positioned(left: size * 0, top: size * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 0))),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 1)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5)),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 6)),
-      Positioned(left: size * 7, top: size * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 7))),
-      Positioned(left: size * 0, top: size * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 0))),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 1)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5)),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 6)),
-      Positioned(left: size * 7, top: size * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 7))),
-      Positioned(left: size * 0, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 0))),
-      Positioned(left: size * 1, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 1))),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5)),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5)),
-      Positioned(left: size * 6, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 6))),
-      Positioned(left: size * 7, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 7))),
-      Positioned(left: size * 0, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 0))),
-      Positioned(left: size * 1, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 1))),
-      Positioned(left: size * 2, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 2))),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(1, 3)),
-      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(1, 4)),
-      Positioned(left: size * 5, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 5))),
-      Positioned(left: size * 6, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 6))),
-      Positioned(left: size * 7, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 7))),
-      Positioned(left: size * 0, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 0))),
-      Positioned(left: size * 1, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 1))),
-      Positioned(left: size * 2, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 2))),
-      Positioned(left: size * 3, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 3))),
-      Positioned(left: size * 4, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 4))),
-      Positioned(left: size * 5, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 5))),
-      Positioned(left: size * 6, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 6))),
-      Positioned(left: size * 7, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 7))),
+      Positioned(left: size * 0, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 0, 0))),
+      Positioned(left: size * 1, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 1, 0))),
+      Positioned(left: size * 2, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 2, 0))),
+      Positioned(left: size * 3, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 3, 0))),
+      Positioned(left: size * 4, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 4, 0))),
+      Positioned(left: size * 5, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 5, 0))),
+      Positioned(left: size * 6, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 6, 0))),
+      Positioned(left: size * 7, top: size * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 7, 0))),
+      Positioned(left: size * 0, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 0, 0))),
+      Positioned(left: size * 1, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 1, 0))),
+      Positioned(left: size * 2, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 2, 0))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(6, 3, 0)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(6, 4, 0)),
+      Positioned(left: size * 5, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 5, 0))),
+      Positioned(left: size * 6, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 6, 0))),
+      Positioned(left: size * 7, top: size * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 7, 0))),
+      Positioned(left: size * 0, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 0, 0))),
+      Positioned(left: size * 1, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 1, 0))),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4, 1)),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5, 1)),
+      Positioned(left: size * 6, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 6, 0))),
+      Positioned(left: size * 7, top: size * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 7, 0))),
+      Positioned(left: size * 0, top: size * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 0, 0))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 1, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5, 1)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 6, 0)),
+      Positioned(left: size * 7, top: size * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 7, 0))),
+      Positioned(left: size * 0, top: size * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 0, 0))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 1, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5, 1)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 6, 0)),
+      Positioned(left: size * 7, top: size * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 7, 0))),
+      Positioned(left: size * 0, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 0, 0))),
+      Positioned(left: size * 1, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 1, 0))),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3, 1)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4, 1)),
+      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5, 0)),
+      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5, 1)),
+      Positioned(left: size * 6, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 6, 0))),
+      Positioned(left: size * 7, top: size * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 7, 0))),
+      Positioned(left: size * 0, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 0, 0))),
+      Positioned(left: size * 1, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 1, 0))),
+      Positioned(left: size * 2, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 2, 0))),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(1, 3, 0)),
+      ClipPath(clipper: SquareWithArcClipper(innerRadius: outerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(1, 4, 0)),
+      Positioned(left: size * 5, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 5, 0))),
+      Positioned(left: size * 6, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 6, 0))),
+      Positioned(left: size * 7, top: size * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 7, 0))),
+      Positioned(left: size * 0, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 0, 0))),
+      Positioned(left: size * 1, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 1, 0))),
+      Positioned(left: size * 2, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 2, 0))),
+      Positioned(left: size * 3, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 3, 0))),
+      Positioned(left: size * 4, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 4, 0))),
+      Positioned(left: size * 5, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 5, 0))),
+      Positioned(left: size * 6, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 6, 0))),
+      Positioned(left: size * 7, top: size * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 7, 0))),
     ];
 
     return Stack(children: tiles);
   }
 
-  Tile _buildTile(int rank, int file) {
-    final pos = Position(rank, file);
+  Tile _buildTile(int rank, int file, int layer) {
+    final pos = Position(rank, file, layer);
     return Tile(
       onTap: validMoves.contains(pos)
-          ? () => movePiece(rank, file)
-          : () => selectPiece(rank, file),
+          ? () => movePiece(rank, file, layer)
+          : () => selectPiece(rank, file, layer),
       isSelected: selected == pos,
       isValidMove: validMoves.contains(pos),
       isInvalidPawnAttack: invalidPawnAttacks.contains(pos),
       isThreatened: possibleMoves.contains(pos) &&
           !validMoves.contains(pos),
       piece: board[pos],
-      isWhite: (rank + file) % 2 == 1,
+      isWhite: (rank + file + layer) % 2 == 1,
     );
   }
 
@@ -265,23 +266,23 @@ class GameBoard {
     return _board.entries.any((e) {
       final piece = e.value;
       if (piece.isWhite == isWhite) return false;
-      final (rank, file) = e.key.split;
-      final moves = calculateRawValidMoves(rank, file, piece);
+      final (rank, file, layer) = e.key.split;
+      final moves = calculateRawValidMoves(rank, file, layer, piece);
       return moves.any((pos) => pos == kingPosition);
     });
   }
 
   List<Position> calculatePawnAttacks(
-      int rank, int file, ChessPiece pawn) {
+      int rank, int file, int layer, ChessPiece pawn) {
     final direction = pawn.isWhite ? 1 : -1;
-    return [Position(rank + direction, file + 1), Position(rank + direction, file - 1)];
+    return [Position(rank + direction, file + 1, layer), Position(rank + direction, file - 1, layer)];
   }
 
   List<Position> calculatePawnMoves(
-      int rank, int file, ChessPiece pawn) {
+      int rank, int file, int layer, ChessPiece pawn) {
     final direction = pawn.isWhite ? 1 : -1;
-    final move1 = Position(rank + direction, file);
-    final move2 = Position(rank + direction * 2, file);
+    final move1 = Position(rank + direction, file, layer);
+    final move2 = Position(rank + direction * 2, file, layer);
     bool canAttack(Position attack) {
       if (_board[attack] != null) {
         return _board[attack]?.isWhite == !pawn.isWhite;
@@ -300,7 +301,7 @@ class GameBoard {
           _board[move2] == null &&
           pawn.firstMoved == null)
         move2,
-      for (final attack in calculatePawnAttacks(rank, file, pawn))
+      for (final attack in calculatePawnAttacks(rank, file, layer, pawn))
         if (canAttack(attack)) attack,
     ];
   }
@@ -308,55 +309,56 @@ class GameBoard {
   List<Position> calculateRawValidMoves(
     int rank,
     int file,
+    int layer,
     ChessPiece piece,
   ) {
     List<Position> moves = switch (piece.type) {
-      ChessPieceType.pawn => calculatePawnMoves(rank, file, piece),
+      ChessPieceType.pawn => calculatePawnMoves(rank, file, layer, piece),
       ChessPieceType.knight => [
-          Position(rank + 1, file + 2),
-          Position(rank + 1, file - 2),
-          Position(rank - 1, file + 2),
-          Position(rank - 1, file - 2),
-          Position(rank + 2, file + 1),
-          Position(rank + 2, file - 1),
-          Position(rank - 2, file + 1),
-          Position(rank - 2, file - 1),
+          Position(rank + 1, file + 2, layer),
+          Position(rank + 1, file - 2, layer),
+          Position(rank - 1, file + 2, layer),
+          Position(rank - 1, file - 2, layer),
+          Position(rank + 2, file + 1, layer),
+          Position(rank + 2, file - 1, layer),
+          Position(rank - 2, file + 1, layer),
+          Position(rank - 2, file - 1, layer),
         ],
       ChessPieceType.king => [
-          Position(rank + 1, file),
-          Position(rank + 1, file - 1),
-          Position(rank + 1, file + 1),
-          Position(rank - 1, file),
-          Position(rank - 1, file - 1),
-          Position(rank - 1, file + 1),
-          Position(rank, file - 1),
-          Position(rank, file + 1),
-          if (canCastle(rank, file, piece, (r) => r, (f) => f + 1))
-            Position(rank, file + 2),
-          if (canCastle(rank, file, piece, (r) => r, (f) => f - 1))
-            Position(rank, file - 2),
+          Position(rank + 1, file, layer),
+          Position(rank + 1, file - 1, layer),
+          Position(rank + 1, file + 1, layer),
+          Position(rank - 1, file, layer),
+          Position(rank - 1, file - 1, layer),
+          Position(rank - 1, file + 1, layer),
+          Position(rank, file - 1, layer),
+          Position(rank, file + 1, layer),
+          if (canCastle(rank, file, layer, piece, (r) => r, (f) => f + 1))
+            Position(rank, file + 2, layer),
+          if (canCastle(rank, file, layer, piece, (r) => r, (f) => f - 1))
+            Position(rank, file - 2, layer),
         ],
       ChessPieceType.rook => [
-          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f),
-          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f),
-          ...calculateMoves(rank, file, piece, (r) => r, (f) => f + 1),
-          ...calculateMoves(rank, file, piece, (r) => r, (f) => f - 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r + 1, (f) => f),
+          ...calculateMoves(rank, file, layer, piece, (r) => r - 1, (f) => f),
+          ...calculateMoves(rank, file, layer, piece, (r) => r, (f) => f + 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r, (f) => f - 1),
         ],
       ChessPieceType.bishop => [
-          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f + 1),
-          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f - 1),
-          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f + 1),
-          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f - 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r + 1, (f) => f + 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r + 1, (f) => f - 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r - 1, (f) => f + 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r - 1, (f) => f - 1),
         ],
       ChessPieceType.queen => [
-          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f),
-          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f),
-          ...calculateMoves(rank, file, piece, (r) => r, (f) => f + 1),
-          ...calculateMoves(rank, file, piece, (r) => r, (f) => f - 1),
-          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f + 1),
-          ...calculateMoves(rank, file, piece, (r) => r + 1, (f) => f - 1),
-          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f + 1),
-          ...calculateMoves(rank, file, piece, (r) => r - 1, (f) => f - 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r + 1, (f) => f),
+          ...calculateMoves(rank, file, layer, piece, (r) => r - 1, (f) => f),
+          ...calculateMoves(rank, file, layer, piece, (r) => r, (f) => f + 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r, (f) => f - 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r + 1, (f) => f + 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r + 1, (f) => f - 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r - 1, (f) => f + 1),
+          ...calculateMoves(rank, file, layer, piece, (r) => r - 1, (f) => f - 1),
         ],
     };
     moves.removeWhere((pos) =>
@@ -367,6 +369,7 @@ class GameBoard {
   List<Position> calculateMoves(
     int rank,
     int file,
+    int layer,
     ChessPiece piece,
     int Function(int) nextRank,
     int Function(int) nextFile,
@@ -375,7 +378,7 @@ class GameBoard {
     while (true) {
       rank = nextRank(rank);
       file = nextFile(file);
-      final pos = Position(rank, file);
+      final pos = Position(rank, file, layer);
       if (!pos.inBoard) break;
       final other = _board[pos];
       moves.add(pos);
@@ -387,6 +390,7 @@ class GameBoard {
   bool canCastle(
     int rank,
     int file,
+    int layer,
     ChessPiece king,
     int Function(int) nextRank,
     int Function(int) nextFile,
@@ -395,7 +399,7 @@ class GameBoard {
     while (true) {
       rank = nextRank(rank);
       file = nextFile(file);
-      final pos = Position(rank, file);
+      final pos = Position(rank, file, layer);
       if (!pos.inBoard) return false;
       final piece = _board[pos];
       if (piece != null) {
@@ -407,10 +411,10 @@ class GameBoard {
   }
 
   List<Position> calculateRealValidMoves(
-      int rank, int file, ChessPiece piece) {
+      int rank, int file, int layer, ChessPiece piece) {
     return [
-      for (final move in calculateRawValidMoves(rank, file, piece))
-        if (!movePiece(Position(rank, file), move).isKingInCheck(piece.isWhite)) move,
+      for (final move in calculateRawValidMoves(rank, file, layer, piece))
+        if (!movePiece(Position(rank, file, layer), move).isKingInCheck(piece.isWhite)) move,
     ];
   }
 
@@ -430,7 +434,7 @@ class GameBoard {
       final rook = next.remove(
           switch (dif) { 2 => (from.rank, 7), -2 => (from.rank, 0), _ => null });
       if (rook != null) {
-        next[Position(from.rank, from.file + dif ~/ 2)] = rook.firstMoved == null
+        next[Position(from.rank, from.file + dif ~/ 2, from.layer)] = rook.firstMoved == null
             ? ChessPiece.from(from: rook, firstMoved: turn)
             : rook;
       }
