@@ -19,13 +19,221 @@ class MyApp extends StatelessWidget {
   }
 }
 
+enum Direction {
+  north,
+  south,
+  east,
+  west,
+  northeast,
+  northwest,
+  southeast,
+  southwest,
+}
+
 class Position {
   final int rank, file, layer;
+
   Position(this.rank, this.file, this.layer);
+
+
+  @override
+  String toString() => 'Position{rank: $rank, file: $file, layer: $layer}';
 
   (int, int, int) get split => (rank, file, layer);
 
-  bool get inBoard => rank >= 0 && rank < 8 && file >= 0 && file < 8;
+  Map<Position, Direction> next(Direction dir) {
+    if (isRingCorner()) {
+      switch ((rank, file)) {
+        case (2, 2):
+          switch (dir) {
+            case Direction.northeast:
+              return {Position(rank, file, layer + 1): dir};
+            case Direction.southeast:
+              return {Position(rank, file, layer - 1): dir};
+            case Direction.northwest:
+              return {
+                layer < 2
+                    ? Position(rank + 1, file, layer)
+                    : Position(rank, file + 1, layer): Direction.north
+              };
+            case Direction.southwest:
+              return {
+                layer < 2
+                    ? Position(rank, file + 1, layer)
+                    : Position(rank + 1, file, layer): Direction.west
+              };
+            default:
+          }
+        case (5, 5):
+          switch (dir) {
+            case Direction.northeast:
+              return {Position(rank, file, layer - 1): dir};
+            case Direction.southeast:
+              return {Position(rank, file, layer + 1): dir};
+            case Direction.northwest:
+              return {
+                layer < 2
+                    ? Position(rank, file - 1, layer)
+                    : Position(rank - 1, file, layer): Direction.west
+              };
+            case Direction.southwest:
+              return {
+                layer < 2
+                    ? Position(rank - 1, file, layer)
+                    : Position(rank, file - 1, layer): Direction.south
+              };
+            default:
+          }
+        case (2, 5):
+          switch (dir) {
+            case Direction.northeast:
+              return {
+                layer < 2
+                    ? Position(rank + 1, file, layer)
+                    : Position(rank, file - 1, layer): Direction.north
+              };
+            case Direction.southeast:
+              return {
+                layer < 2
+                    ? Position(rank, file - 1, layer)
+                    : Position(rank + 1, file, layer): Direction.west
+              };
+            case Direction.northwest:
+              return {Position(rank, file, layer + 1): dir};
+            case Direction.southwest:
+              return {Position(rank, file, layer - 1): dir};
+            default:
+          }
+        case (5, 2):
+          switch (dir) {
+            case Direction.northeast:
+              return {
+                layer < 2
+                    ? Position(rank, file + 1, layer)
+                    : Position(rank - 1, file, layer): Direction.east
+              };
+            case Direction.southeast:
+              return {
+                layer < 2
+                    ? Position(rank - 1, file, layer)
+                    : Position(rank, file + 1, layer): Direction.south
+              };
+            case Direction.northwest:
+              return {Position(rank, file, layer - 1): dir};
+            case Direction.southwest:
+              return {Position(rank, file, layer + 1): dir};
+            default:
+          }
+        default:
+      }
+      return {};
+    }
+
+    if (cardinals.length == 5 && cardinals[4] == dir) {
+      return {Position(rank, file, layer + (layer < 2 ? 1 : -1)): dir};
+    }
+
+    final dRank = switch (dir) {
+      Direction.north => layer < 2 ? 1 : -1,
+      Direction.south => layer < 2 ? -1 : 1,
+      _ => 0,
+    };
+    final dFile = switch (dir) {
+      Direction.east => layer < 2 ? 1 : -1,
+      Direction.west => layer < 2 ? -1 : 1,
+      _ => 0,
+    };
+    var pos = Position(rank + dRank, file + dFile, layer);
+    if (!pos.inBoard) {
+      final dLayer = switch (dir) {
+        Direction.north => rank < 4 ? 1 : -1,
+        Direction.south => rank < 4 ? -1 : 1,
+        Direction.east => file < 4 ? 1 : -1,
+        Direction.west => file < 4 ? -1 : 1,
+        _ => 0,
+      };
+      return {Position(rank, file, layer + dLayer): dir};
+    }
+    var direction = dir;
+    // If we are on the ring layer, we may have to modify the final direction
+    // TODO: consider a more generalized solution
+    if (layer == 1 || layer == 2) {
+      switch (dir) {
+        case Direction.north:
+          switch ((pos.rank, pos.file)) {
+            case (2, 2) || (5, 5):
+              direction = Direction.northwest;
+            case (2, 5) || (2, 5):
+              direction = Direction.northeast;
+          }
+        case Direction.south:
+          switch ((pos.rank, pos.file)) {
+            case (2, 2) || (5, 5):
+              direction = Direction.southeast;
+            case (2, 5) || (2, 5):
+              direction = Direction.southwest;
+          }
+        case Direction.east:
+          switch ((pos.rank, pos.file)) {
+            case (2, 2) || (5, 5):
+              direction = Direction.southeast;
+            case (2, 5) || (2, 5):
+              direction = Direction.northeast;
+          }
+        case Direction.west:
+          switch ((pos.rank, pos.file)) {
+            case (2, 2) || (5, 5):
+              direction = Direction.northwest;
+            case (2, 5) || (2, 5):
+              direction = Direction.southwest;
+          }
+        default:
+      }
+    }
+    return {pos: direction};
+  }
+
+  bool isRingCorner() =>
+      (rank == 2 || rank == 5) &&
+          (file == 2 || file == 5) &&
+          (layer == 1 || layer == 2);
+
+  List<Direction> get cardinals {
+    if (isRingCorner()) { // Ring corners
+      return [
+        Direction.northeast,
+        Direction.northwest,
+        Direction.southeast,
+        Direction.southwest,
+      ];
+    }
+    final directions = [
+        Direction.north,
+        Direction.east,
+        Direction.south,
+        Direction.west,
+      ];
+    switch((rank, file)) {
+      case (2,2): directions.add(Direction.northeast);
+      case (2,5): directions.add(Direction.northwest);
+      case (5,2): directions.add(Direction.southeast);
+      case (5,5): directions.add(Direction.southwest);
+    }
+    return directions;
+  }
+
+  bool get inBoard {
+    // The center 4 positions do not exist on any layer
+    if ((rank == 3 || rank == 4) && (file == 3 || file == 4)) return false;
+    switch(layer) {
+      case 0 || 3: // main layers contain any position
+        return rank >= 0 && rank < 8 && file >= 0 && file < 8;
+      case 1 || 2: // ring layers do not contain outer positions
+        return rank >= 2 && rank < 6 && file >= 2 && file < 6;
+      default:
+        return false;
+    }
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -135,7 +343,6 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     final size = constraints.maxHeight / 8;
     final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
     final (w, h) = (center.dx / 4, center.dy / 4);
-    print(size);
 
     double outerRadius = size * sqrt(5);
     double innerRadius = size * 1.6; // approx. avg(sqrt(5) + 1)
@@ -649,7 +856,6 @@ class SquareWithArcClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    print(size);
     final path = Path();
 
     final (w, h) = (size.width, size.height);
