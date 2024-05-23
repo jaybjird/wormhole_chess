@@ -71,71 +71,23 @@ class Position {
       if (ringSide!.index % 4 == dir.index % 4) {
         return {Position(rank, file, layer + (ringSide == dir ? -1 : 1)): dir};
       }
-      switch (ringSide) {
-        case Direction.southwest:
-          switch (dir) {
-            case Direction.southeast:
-              return {
-                layer < 2
-                    ? Position(rank, file + 1, layer)
-                    : Position(rank + 1, file, layer): Direction.west
-              };
-            case Direction.northwest:
-              return {
-                layer < 2
-                    ? Position(rank + 1, file, layer)
-                    : Position(rank, file + 1, layer): Direction.north
-              };
-            default:
-          }
-        case Direction.northeast:
-          switch (dir) {
-            case Direction.southeast:
-              return {
-                layer < 2
-                    ? Position(rank, file - 1, layer)
-                    : Position(rank - 1, file, layer): Direction.west
-              };
-            case Direction.northwest:
-              return {
-                layer < 2
-                    ? Position(rank - 1, file, layer)
-                    : Position(rank, file - 1, layer): Direction.south
-              };
-            default:
-          }
-        case Direction.southeast:
-          switch (dir) {
-            case Direction.northeast:
-              return {
-                layer < 2
-                    ? Position(rank + 1, file, layer)
-                    : Position(rank, file - 1, layer): Direction.north
-              };
-            case Direction.southwest:
-              return {
-                layer < 2
-                    ? Position(rank, file - 1, layer)
-                    : Position(rank + 1, file, layer): Direction.west
-              };
-            default:
-          }
-        case Direction.northwest:
-          switch (dir) {
-            case Direction.northeast:
-              return {
-                layer < 2
-                    ? Position(rank, file + 1, layer)
-                    : Position(rank - 1, file, layer): Direction.east
-              };
-            case Direction.southwest:
-              return {
-                layer < 2
-                    ? Position(rank - 1, file, layer)
-                    : Position(rank, file + 1, layer): Direction.south
-              };
-            default:
-          }
+      switch ((ringSide, (dir == ringSide?.right(2)) == (layer < 2))) {
+        case (Direction.northeast, true):
+          return {Position(rank - 1, file, layer): dir.right(1)};
+        case (Direction.northeast, false):
+          return {Position(rank, file - 1, layer): dir.left(1)};
+        case (Direction.southeast, true):
+          return {Position(rank, file - 1, layer): dir.right(1)};
+        case (Direction.southeast, false):
+          return {Position(rank + 1, file, layer): dir.left(1)};
+        case (Direction.southwest, true):
+          return {Position(rank + 1, file, layer): dir.right(1)};
+        case (Direction.southwest, false):
+          return {Position(rank, file + 1, layer): dir.left(1)};
+        case (Direction.northwest, true):
+          return {Position(rank, file + 1, layer): dir.right(1)};
+        case (Direction.northwest, false):
+          return {Position(rank - 1, file, layer): dir.left(1)};
         default:
       }
       return {};
