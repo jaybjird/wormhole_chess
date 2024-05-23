@@ -31,6 +31,7 @@ enum Direction {
 
   Direction right([int i = 1]) => Direction.values[(index + i) % 8];
   Direction left([int i = 1]) => Direction.values[(8 + index - i) % 8];
+  bool get isCardinal => index % 2 == 0;
 }
 
 class Position {
@@ -58,6 +59,16 @@ class Position {
   (int, int, int) get split => (rank, file, layer);
 
   Map<Position, Direction> next(Direction dir) {
+    if (_ringSide != null && !_ringSide.isCardinal && (layer == 0 || layer == 3)) {
+      final mod = layer < 2 ? 1 : -1;
+      return dir.isCardinal
+          ? {
+              ..._next(dir),
+              Position(rank, file, layer + mod): _ringSide.right(4)
+            }
+          : {..._next(dir.left()), ..._next(dir.right())};
+    }
+
     if (isRingCorner()) {
       // TODO: avoid !
       if (_ringSide!.index % 4 == dir.index % 4) {
@@ -66,28 +77,25 @@ class Position {
 
       final turnRight = dir == _ringSide.right(2);
       final turned = turnRight ? dir.right() : dir.left();
-      return {_next(turned)!: turned};
+      return _next(turned);
     }
 
-    if (cardinals.length == 5 && cardinals[4] == dir) {
-      return {Position(rank, file, layer + (layer < 2 ? 1 : -1)): dir};
-    }
+    return nextEuclidean(dir);
+  }
 
-  Position? _next(Direction dir) {
+  Map<Position, Direction> _next(Direction dir) {
     final mod = layer < 2 ? 1 : -1;
     return switch (dir) {
-      Direction.north => Position(rank + mod, file, layer),
-      Direction.south => Position(rank - mod, file, layer),
-      Direction.east => Position(rank, file + mod, layer),
-      Direction.west => Position(rank, file - mod, layer),
-      _ => null, // TODO: be exhaustive
+      Direction.north => {Position(rank + mod, file, layer): dir},
+      Direction.south => {Position(rank - mod, file, layer): dir},
+      Direction.east => {Position(rank, file + mod, layer): dir},
+      Direction.west => {Position(rank, file - mod, layer): dir},
+      _ => {}, // TODO: be exhaustive
     };
-    final dFile = switch (dir) {
-      Direction.east => layer < 2 ? 1 : -1,
-      Direction.west => layer < 2 ? -1 : 1,
-      _ => 0,
-    };
-    var pos = Position(rank + dRank, file + dFile, layer);
+  }
+
+  Map<Position, Direction> nextEuclidean(Direction dir) {
+    var pos = _next(dir).keys.first; // TODO
     if (!pos.inBoard) {
       final dLayer = switch (dir) {
         Direction.north => rank < 4 ? 1 : -1,
@@ -98,43 +106,14 @@ class Position {
       };
       return {Position(rank, file, layer + dLayer): dir};
     }
-    var direction = dir;
-    // If we are on the ring layer, we may have to modify the final direction
-    // TODO: consider a more generalized solution
-    if (layer == 1 || layer == 2) {
-      switch (dir) {
-        case Direction.north:
-          switch ((pos.rank, pos.file)) {
-            case (2, 2) || (5, 5):
-              direction = Direction.northwest;
-            case (2, 5) || (2, 5):
-              direction = Direction.northeast;
-          }
-        case Direction.south:
-          switch ((pos.rank, pos.file)) {
-            case (2, 2) || (5, 5):
-              direction = Direction.southeast;
-            case (2, 5) || (2, 5):
-              direction = Direction.southwest;
-          }
-        case Direction.east:
-          switch ((pos.rank, pos.file)) {
-            case (2, 2) || (5, 5):
-              direction = Direction.southeast;
-            case (2, 5) || (2, 5):
-              direction = Direction.northeast;
-          }
-        case Direction.west:
-          switch ((pos.rank, pos.file)) {
-            case (2, 2) || (5, 5):
-              direction = Direction.northwest;
-            case (2, 5) || (2, 5):
-              direction = Direction.southwest;
-          }
-        default:
+    if (_ringSide != null) {
+      if (_ringSide.right() == pos._ringSide)  {
+        return {pos: _ringSide.right(3)};
+      } else if (_ringSide.left() == pos._ringSide) {
+        return {pos: _ringSide.left(3)};
       }
     }
-    return {pos: direction};
+    return {pos: dir};
   }
 
   bool isRingCorner() =>
@@ -143,25 +122,25 @@ class Position {
           (layer == 1 || layer == 2);
 
   List<Direction> get cardinals {
-    if (isRingCorner()) { // Ring corners
+    if (_ringSide == null || _ringSide.isCardinal) {
       return [
-        Direction.northeast,
-        Direction.northwest,
-        Direction.southeast,
-        Direction.southwest,
-      ];
-    }
-    final directions = [
         Direction.north,
         Direction.east,
         Direction.south,
         Direction.west,
       ];
-    switch((rank, file)) {
-      case (2,2): directions.add(Direction.northeast);
-      case (2,5): directions.add(Direction.northwest);
-      case (5,2): directions.add(Direction.southeast);
-      case (5,5): directions.add(Direction.southwest);
+    }
+    final directions = [
+      Direction.northeast,
+      Direction.northwest,
+      Direction.southeast,
+      Direction.southwest,
+    ];
+    if (layer == 0 || layer == 3) {
+      final opposite = _ringSide.right(4);
+      directions.remove(opposite);
+      directions.add(opposite.left());
+      directions.add(opposite.right());
     }
     return directions;
   }
