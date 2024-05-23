@@ -65,29 +65,20 @@ class Position {
   (int, int, int) get split => (rank, file, layer);
 
   Map<Position, Direction> next(Direction dir) {
-    print(ringSide);
     if (isRingCorner()) {
       // TODO: avoid !
       if (ringSide!.index % 4 == dir.index % 4) {
         return {Position(rank, file, layer + (ringSide == dir ? -1 : 1)): dir};
       }
-      switch ((ringSide, (dir == ringSide?.right(2)) == (layer < 2))) {
-        case (Direction.northeast, true):
-          return {Position(rank - 1, file, layer): dir.right(1)};
-        case (Direction.northeast, false):
-          return {Position(rank, file - 1, layer): dir.left(1)};
-        case (Direction.southeast, true):
-          return {Position(rank, file - 1, layer): dir.right(1)};
-        case (Direction.southeast, false):
-          return {Position(rank + 1, file, layer): dir.left(1)};
-        case (Direction.southwest, true):
-          return {Position(rank + 1, file, layer): dir.right(1)};
-        case (Direction.southwest, false):
-          return {Position(rank, file + 1, layer): dir.left(1)};
-        case (Direction.northwest, true):
-          return {Position(rank, file + 1, layer): dir.right(1)};
-        case (Direction.northwest, false):
-          return {Position(rank - 1, file, layer): dir.left(1)};
+
+      final mod = layer < 2 ? 1 : -1;
+      final turnRight = (dir == ringSide?.right(2)) == (layer < 2);
+      final turned = turnRight ? dir.right() : dir.left();
+      switch (turned) {
+        case Direction.north: return {Position(rank + mod, file, layer): turned};
+        case Direction.south: return {Position(rank - mod, file, layer): turned};
+        case Direction.east: return {Position(rank, file + mod, layer): turned};
+        case Direction.west: return {Position(rank, file - mod, layer): turned};
         default:
       }
       return {};
