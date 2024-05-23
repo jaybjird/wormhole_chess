@@ -35,29 +35,21 @@ enum Direction {
 
 class Position {
   final int rank, file, layer;
+  final Direction? ringSide;
 
-  Position(this.rank, this.file, this.layer);
-
-  Direction? get ringSide {
-    if (rank < 2 || rank > 5 || file < 2 || file > 5) return null;
-    return switch (rank) {
-      2 => switch (file) {
-        2 => Direction.southwest,
-        5 => Direction.southeast,
-        _ => Direction.south,
-      },
-      5 => switch (file) {
-        2 => Direction.northwest,
-        5 => Direction.northeast,
-        _ => Direction.north,
-      },
-      _ => switch (file) {
-        2 => Direction.west,
-        5 => Direction.east,
-        _ => null,
-      },
-    };
-  }
+  Position(this.rank, this.file, this.layer)
+      : ringSide = switch ((rank, file)) {
+          (int r, int f) when r < 2 || r > 5 || f < 2 || f > 5 => null,
+          (2, 2) => Direction.southwest,
+          (2, 5) => Direction.southeast,
+          (2, _) => Direction.south,
+          (5, 2) => Direction.northwest,
+          (5, 5) => Direction.northeast,
+          (5, _) => Direction.north,
+          (_, 2) => Direction.west,
+          (_, 5) => Direction.east,
+          _ => null,
+        };
 
   @override
   String toString() => 'Position{rank: $rank, file: $file, layer: $layer}';
