@@ -35,10 +35,11 @@ enum Direction {
 
 class Position {
   final int rank, file, layer;
-  final Direction? ringSide;
+  final Direction? _ringSide;
 
   Position(this.rank, this.file, this.layer)
-      : ringSide = switch ((rank, file)) {
+      : _ringSide = switch ((rank, file)) {
+          // Null if not part of the ring
           (int r, int f) when r < 2 || r > 5 || f < 2 || f > 5 => null,
           (2, 2) => Direction.southwest,
           (2, 5) => Direction.southeast,
@@ -48,8 +49,8 @@ class Position {
           (5, _) => Direction.north,
           (_, 2) => Direction.west,
           (_, 5) => Direction.east,
-          _ => null,
-        };
+          _ => null, // Included for exhaustiveness
+        }?.right(layer < 2 ? 0 : 4); // Invert if on the reverse layer
 
   @override
   String toString() => 'Position{rank: $rank, file: $file, layer: $layer}';
@@ -59,31 +60,27 @@ class Position {
   Map<Position, Direction> next(Direction dir) {
     if (isRingCorner()) {
       // TODO: avoid !
-      if (ringSide!.index % 4 == dir.index % 4) {
-        return {Position(rank, file, layer + (ringSide == dir ? -1 : 1)): dir};
+      if (_ringSide!.index % 4 == dir.index % 4) {
+        return {Position(rank, file, layer + (_ringSide == dir ? -1 : 1)): dir};
       }
 
-      final mod = layer < 2 ? 1 : -1;
-      final turnRight = (dir == ringSide?.right(2)) == (layer < 2);
+      final turnRight = dir == _ringSide.right(2);
       final turned = turnRight ? dir.right() : dir.left();
-      switch (turned) {
-        case Direction.north: return {Position(rank + mod, file, layer): turned};
-        case Direction.south: return {Position(rank - mod, file, layer): turned};
-        case Direction.east: return {Position(rank, file + mod, layer): turned};
-        case Direction.west: return {Position(rank, file - mod, layer): turned};
-        default:
-      }
-      return {};
+      return {_next(turned)!: turned};
     }
 
     if (cardinals.length == 5 && cardinals[4] == dir) {
       return {Position(rank, file, layer + (layer < 2 ? 1 : -1)): dir};
     }
 
-    final dRank = switch (dir) {
-      Direction.north => layer < 2 ? 1 : -1,
-      Direction.south => layer < 2 ? -1 : 1,
-      _ => 0,
+  Position? _next(Direction dir) {
+    final mod = layer < 2 ? 1 : -1;
+    return switch (dir) {
+      Direction.north => Position(rank + mod, file, layer),
+      Direction.south => Position(rank - mod, file, layer),
+      Direction.east => Position(rank, file + mod, layer),
+      Direction.west => Position(rank, file - mod, layer),
+      _ => null, // TODO: be exhaustive
     };
     final dFile = switch (dir) {
       Direction.east => layer < 2 ? 1 : -1,
