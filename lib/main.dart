@@ -132,15 +132,17 @@ class Position {
     }
     final directions = [
       Direction.northeast,
-      Direction.northwest,
       Direction.southeast,
       Direction.southwest,
+      Direction.northwest,
     ];
     if (layer == 0 || layer == 3) {
+      // For five sided tiles, split one of the directions in two, but maintain
+      // sort order.
       final opposite = _ringSide.right(4);
-      directions.remove(opposite);
-      directions.add(opposite.left());
-      directions.add(opposite.right());
+      final index = directions.indexOf(opposite);
+      directions[index] = opposite.right();
+      directions.insert(index, opposite.left());
     }
     return directions;
   }
