@@ -21,13 +21,16 @@ class MyApp extends StatelessWidget {
 
 enum Direction {
   north,
-  south,
-  east,
-  west,
   northeast,
-  northwest,
+  east,
   southeast,
+  south,
   southwest,
+  west,
+  northwest;
+
+  Direction right([int i = 1]) => Direction.values[(index + i) % 8];
+  Direction left([int i = 1]) => Direction.values[(8 + index - i) % 8];
 }
 
 class Position {
@@ -35,6 +38,26 @@ class Position {
 
   Position(this.rank, this.file, this.layer);
 
+  Direction? get ringSide {
+    if (rank < 2 || rank > 5 || file < 2 || file > 5) return null;
+    return switch (rank) {
+      2 => switch (file) {
+        2 => Direction.southwest,
+        5 => Direction.southeast,
+        _ => Direction.south,
+      },
+      5 => switch (file) {
+        2 => Direction.northwest,
+        5 => Direction.northeast,
+        _ => Direction.north,
+      },
+      _ => switch (file) {
+        2 => Direction.west,
+        5 => Direction.east,
+        _ => null,
+      },
+    };
+  }
 
   @override
   String toString() => 'Position{rank: $rank, file: $file, layer: $layer}';
@@ -42,41 +65,38 @@ class Position {
   (int, int, int) get split => (rank, file, layer);
 
   Map<Position, Direction> next(Direction dir) {
+    print(ringSide);
     if (isRingCorner()) {
-      switch ((rank, file)) {
-        case (2, 2):
+      // TODO: avoid !
+      if (ringSide!.index % 4 == dir.index % 4) {
+        return {Position(rank, file, layer + (ringSide == dir ? -1 : 1)): dir};
+      }
+      switch (ringSide) {
+        case Direction.southwest:
           switch (dir) {
-            case Direction.northeast:
-              return {Position(rank, file, layer + 1): dir};
             case Direction.southeast:
-              return {Position(rank, file, layer - 1): dir};
+              return {
+                layer < 2
+                    ? Position(rank, file + 1, layer)
+                    : Position(rank + 1, file, layer): Direction.west
+              };
             case Direction.northwest:
               return {
                 layer < 2
                     ? Position(rank + 1, file, layer)
                     : Position(rank, file + 1, layer): Direction.north
               };
-            case Direction.southwest:
-              return {
-                layer < 2
-                    ? Position(rank, file + 1, layer)
-                    : Position(rank + 1, file, layer): Direction.west
-              };
             default:
           }
-        case (5, 5):
+        case Direction.northeast:
           switch (dir) {
-            case Direction.northeast:
-              return {Position(rank, file, layer - 1): dir};
             case Direction.southeast:
-              return {Position(rank, file, layer + 1): dir};
-            case Direction.northwest:
               return {
                 layer < 2
                     ? Position(rank, file - 1, layer)
                     : Position(rank - 1, file, layer): Direction.west
               };
-            case Direction.southwest:
+            case Direction.northwest:
               return {
                 layer < 2
                     ? Position(rank - 1, file, layer)
@@ -84,7 +104,7 @@ class Position {
               };
             default:
           }
-        case (2, 5):
+        case Direction.southeast:
           switch (dir) {
             case Direction.northeast:
               return {
@@ -92,19 +112,15 @@ class Position {
                     ? Position(rank + 1, file, layer)
                     : Position(rank, file - 1, layer): Direction.north
               };
-            case Direction.southeast:
+            case Direction.southwest:
               return {
                 layer < 2
                     ? Position(rank, file - 1, layer)
                     : Position(rank + 1, file, layer): Direction.west
               };
-            case Direction.northwest:
-              return {Position(rank, file, layer + 1): dir};
-            case Direction.southwest:
-              return {Position(rank, file, layer - 1): dir};
             default:
           }
-        case (5, 2):
+        case Direction.northwest:
           switch (dir) {
             case Direction.northeast:
               return {
@@ -112,16 +128,12 @@ class Position {
                     ? Position(rank, file + 1, layer)
                     : Position(rank - 1, file, layer): Direction.east
               };
-            case Direction.southeast:
+            case Direction.southwest:
               return {
                 layer < 2
                     ? Position(rank - 1, file, layer)
                     : Position(rank, file + 1, layer): Direction.south
               };
-            case Direction.northwest:
-              return {Position(rank, file, layer - 1): dir};
-            case Direction.southwest:
-              return {Position(rank, file, layer + 1): dir};
             default:
           }
         default:
