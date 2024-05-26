@@ -69,68 +69,64 @@ class Position {
   /// Calculating the diagonal in a single pass is hard.
   /// Calculate the neighboring cardinal directions instead, and find where
   /// they converge
-  Map<Position, Direction> nextDiagonal(Direction dir) {
+  List<(Position, Direction)> nextDiagonal(Direction dir) {
     final c = cardinals;
     final l = diagonals.indexOf(dir);
     final r = (l + 1) % c.length;
 
-    final left = nextCardinal(cardinals[l]).entries.toList();
-    final right = nextCardinal(cardinals[r]).entries.toList();
+    final left = nextCardinal(cardinals[l]);
+    final right = nextCardinal(cardinals[r]);
 
-    Map<Position, Direction> moves = {};
+    List<(Position, Direction)> moves = [];
     for (int i = 0; i < left.length; ++i) {
-      final MapEntry(key: lPos, value: lDir) = left[i];
-      final MapEntry(key: rPos, value: rDir) = right[i];
+      final (lPos, lDir) = left[i];
+      final (rPos, rDir) = right[i];
       final pos = Position(
         lPos.rank + rPos.rank - rank,
         lPos.file + rPos.file - file,
         lPos.layer + rPos.layer - layer,
       );
-      moves[pos] = rDir.right(dir.dif(lDir));
+      moves.add((pos, rDir.right(dir.dif(lDir))));
     }
     return moves;
   }
 
-  Map<Position, Direction> nextCardinal(Direction dir) {
+  List<(Position, Direction)> nextCardinal(Direction dir) {
+    final mod = layer < 2 ? 1 : -1;
     if (_ringSide != null && !_ringSide.isCardinal && (layer == 0 || layer == 3)) {
-      final mod = layer < 2 ? 1 : -1;
-      if (!dir.isCardinal) return {..._next(dir.left()), ..._next(dir.right())};
-      final down = Position(rank, file, layer + mod);
-      if (_ringSide.dif(dir) > 0) { // Ensure that they return in clockwise order
-        return {..._next(dir), down: _ringSide.right(4)};
-      } else {
-        return {down: _ringSide.right(4), ..._next(dir)};
-      }
+      if (!dir.isCardinal) return [_next(dir.left()), _next(dir.right())];
+      final down = (Position(rank, file, layer + mod), _ringSide.right(4));
+      // Return in clockwise order
+      return _ringSide.dif(dir) > 0 ? [_next(dir), down] : [down, _next(dir)];
     }
 
     if (isRingCorner()) {
       // TODO: avoid !
-      final mod = layer < 2 ? 1 : -1;
       if (_ringSide!.index % 4 == dir.index % 4) {
-        return {Position(rank, file, layer + (_ringSide == dir ? -mod : mod)): dir};
+        return [(Position(rank, file, layer + (_ringSide == dir ? -mod : mod)), dir)];
       }
 
       final turnRight = dir == _ringSide.right(2);
       final turned = turnRight ? dir.right() : dir.left();
-      return _next(turned);
+      return [_next(turned)];
     }
 
-    return nextEuclidean(dir);
+    return [nextEuclidean(dir)];
   }
 
-  Map<Position, Direction> _next(Direction dir) {
+  (Position, Direction) _next(Direction dir) {
     final mod = layer < 2 ? 1 : -1;
     return switch (dir) {
-      Direction.north => {Position(rank + mod, file, layer): dir},
-      Direction.south => {Position(rank - mod, file, layer): dir},
-      Direction.east => {Position(rank, file + mod, layer): dir},
-      Direction.west => {Position(rank, file - mod, layer): dir},
-      _ => {}, // TODO: be exhaustive
+      Direction.north => (Position(rank + mod, file, layer), dir),
+      Direction.south => (Position(rank - mod, file, layer), dir),
+      Direction.east => (Position(rank, file + mod, layer), dir),
+      Direction.west => (Position(rank, file - mod, layer), dir),
+      _ => (this, dir), // TODO: this should be an error
     };
   }
 
-  Map<Position, Direction> nextEuclidean(Direction dir) {
-    var pos = _next(dir).keys.first; // TODO
+  (Position, Direction) nextEuclidean(Direction dir) {
+    var (pos, _) = _next(dir); // TODO
     if (!pos.inBoard) {
       final dLayer = switch (dir) {
         Direction.north => rank < 4 ? 1 : -1,
@@ -139,16 +135,16 @@ class Position {
         Direction.west => file < 4 ? -1 : 1,
         _ => 0,
       };
-      return {Position(rank, file, layer + dLayer): dir};
+      return (Position(rank, file, layer + dLayer), dir);
     }
     if (_ringSide != null) {
       if (_ringSide.right() == pos._ringSide)  {
-        return {pos: _ringSide.right(3)};
+        return (pos, _ringSide.right(3));
       } else if (_ringSide.left() == pos._ringSide) {
-        return {pos: _ringSide.left(3)};
+        return (pos, _ringSide.left(3));
       }
     }
-    return {pos: dir};
+    return (pos, dir);
   }
 
   bool isRingCorner() =>
