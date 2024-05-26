@@ -29,13 +29,21 @@ enum Direction {
   west,
   northwest;
 
-  Direction right([int i = 1]) => Direction.values[(index + i) % 8];
-  Direction left([int i = 1]) => Direction.values[(8 + index - i) % 8];
+  Direction right([int i = 1]) => i < 0 ? left(-i) : Direction.values[(index + i) % 8];
+  Direction left([int i = 1]) => i <  0 ? right(-i) : Direction.values[(8 + index - i) % 8];
   bool get isCardinal => index % 2 == 0;
+
+  int dif(Direction other) {
+    int dif = other.index - index;
+
+    if (dif > 4) return dif - 8;
+    if (dif < -3) return dif + 8;
+    return dif;
+  }
 }
 
 class Position {
-  final int rank, file, layer;
+  final int rank, file, layer; // TODO: rank and file are being used backwards
   final Direction? _ringSide;
 
   Position(this.rank, this.file, this.layer)
@@ -58,21 +66,48 @@ class Position {
 
   (int, int, int) get split => (rank, file, layer);
 
-  Map<Position, Direction> next(Direction dir) {
+  /// Calculating the diagonal in a single pass is hard.
+  /// Calculate the neighboring cardinal directions instead, and find where
+  /// they converge
+  Map<Position, Direction> nextDiagonal(Direction dir) {
+    final c = cardinals;
+    final l = diagonals.indexOf(dir);
+    final r = (l + 1) % c.length;
+
+    final left = nextCardinal(cardinals[l]).entries.toList();
+    final right = nextCardinal(cardinals[r]).entries.toList();
+
+    Map<Position, Direction> moves = {};
+    for (int i = 0; i < left.length; ++i) {
+      final MapEntry(key: lPos, value: lDir) = left[i];
+      final MapEntry(key: rPos, value: rDir) = right[i];
+      final pos = Position(
+        lPos.rank + rPos.rank - rank,
+        lPos.file + rPos.file - file,
+        lPos.layer + rPos.layer - layer,
+      );
+      moves[pos] = rDir.right(dir.dif(lDir));
+    }
+    return moves;
+  }
+
+  Map<Position, Direction> nextCardinal(Direction dir) {
     if (_ringSide != null && !_ringSide.isCardinal && (layer == 0 || layer == 3)) {
       final mod = layer < 2 ? 1 : -1;
-      return dir.isCardinal
-          ? {
-              ..._next(dir),
-              Position(rank, file, layer + mod): _ringSide.right(4)
-            }
-          : {..._next(dir.left()), ..._next(dir.right())};
+      if (!dir.isCardinal) return {..._next(dir.left()), ..._next(dir.right())};
+      final down = Position(rank, file, layer + mod);
+      if (_ringSide.dif(dir) > 0) { // Ensure that they return in clockwise order
+        return {..._next(dir), down: _ringSide.right(4)};
+      } else {
+        return {down: _ringSide.right(4), ..._next(dir)};
+      }
     }
 
     if (isRingCorner()) {
       // TODO: avoid !
+      final mod = layer < 2 ? 1 : -1;
       if (_ringSide!.index % 4 == dir.index % 4) {
-        return {Position(rank, file, layer + (_ringSide == dir ? -1 : 1)): dir};
+        return {Position(rank, file, layer + (_ringSide == dir ? -mod : mod)): dir};
       }
 
       final turnRight = dir == _ringSide.right(2);
@@ -143,6 +178,30 @@ class Position {
       final index = directions.indexOf(opposite);
       directions[index] = opposite.right();
       directions.insert(index, opposite.left());
+    }
+    return directions;
+  }
+
+  List<Direction> get diagonals {
+    final directions = [
+      Direction.northeast,
+      Direction.southeast,
+      Direction.southwest,
+      Direction.northwest,
+    ];
+    if (_ringSide == null || _ringSide.isCardinal) return directions;
+    if (layer == 1 || layer == 2) {
+      return [
+        Direction.north,
+        Direction.east,
+        Direction.south,
+        Direction.west,
+      ];
+    }
+    if (layer == 0 || layer == 3) {
+      final index = directions.indexOf(_ringSide);
+      directions[index] = _ringSide.right();
+      directions.insert(index, _ringSide.left());
     }
     return directions;
   }
