@@ -70,87 +70,79 @@ class Position {
   /// Calculate the neighboring cardinal directions instead, and find where
   /// they converge
   List<(Position, Direction)> nextDiagonal(Direction dir) {
+    final d = diagonals;
+    final i = d.indexOf(dir);
+
     final c = cardinals;
-    final l = diagonals.indexOf(dir);
-    final r = (l + 1) % c.length;
+    var left = dir.left();
+    var right = dir.right();
 
-    final left = nextCardinal(cardinals[l]);
-    final right = nextCardinal(cardinals[r]);
-
-    List<(Position, Direction)> moves = [];
-    for (int i = 0; i < left.length; ++i) {
-      final (lPos, lDir) = left[i];
-      final (rPos, rDir) = right[i];
-      final pos = Position(
-        lPos.rank + rPos.rank - rank,
-        lPos.file + rPos.file - file,
-        lPos.layer + rPos.layer - layer,
-      );
-      moves.add((pos, rDir.right(dir.dif(lDir))));
+    if (c.length == 4) {
+      return [converge(_nextPos(left), _nextPos(right), dir)];
     }
-    return moves;
+
+    if (!c.contains(left)) left = dir;
+    if (!c.contains(right)) right = dir;
+
+    final leftPos = _nextPos(i > 0 ? d[i - 1] : d.last);
+    final centerPos = _nextPos(dir);
+    final rightPos = _nextPos(d[(i + 1) % d.length]);
+    return [
+      converge(leftPos, centerPos, left),
+      converge(centerPos, rightPos, right),
+    ];
   }
 
-  List<(Position, Direction)> nextCardinal(Direction dir) {
-    final mod = layer < 2 ? 1 : -1;
-    if (_ringSide != null && !_ringSide.isCardinal && (layer == 0 || layer == 3)) {
-      if (!dir.isCardinal) return [_next(dir.left()), _next(dir.right())];
-      final down = (Position(rank, file, layer + mod), _ringSide.right(4));
-      // Return in clockwise order
-      return _ringSide.dif(dir) > 0 ? [_next(dir), down] : [down, _next(dir)];
-    }
-
-    if (isRingCorner()) {
-      // TODO: avoid !
-      if (_ringSide!.index % 4 == dir.index % 4) {
-        return [(Position(rank, file, layer + (_ringSide == dir ? -mod : mod)), dir)];
-      }
-
-      final turnRight = dir == _ringSide.right(2);
-      final turned = turnRight ? dir.right() : dir.left();
-      return [_next(turned)];
-    }
-
-    return [nextEuclidean(dir)];
+  (Position, Direction) converge(Position left, Position right, Direction dir) {
+    final to = Position(
+      left.rank + right.rank - rank,
+      left.file + right.file - file,
+      left.layer + right.layer - layer,
+    );
+    return (to, nextHeading(to, dir));
   }
 
-  (Position, Direction) _next(Direction dir) {
-    final mod = layer < 2 ? 1 : -1;
-    return switch (dir) {
-      Direction.north => (Position(rank + mod, file, layer), dir),
-      Direction.south => (Position(rank - mod, file, layer), dir),
-      Direction.east => (Position(rank, file + mod, layer), dir),
-      Direction.west => (Position(rank, file - mod, layer), dir),
-      _ => (this, dir), // TODO: this should be an error
+  Direction nextHeading(Position to, Direction dir) {
+    if (_ringSide == null) return dir;
+    return switch(to._ringSide?.dif(_ringSide)) {
+      -1 || 3 => dir.right(),
+      1 || -3 => dir.left(),
+      _ => dir
     };
   }
 
-  (Position, Direction) nextEuclidean(Direction dir) {
-    var (pos, _) = _next(dir); // TODO
-    if (!pos.inBoard) {
-      final dLayer = switch (dir) {
-        Direction.north => rank < 4 ? 1 : -1,
-        Direction.south => rank < 4 ? -1 : 1,
-        Direction.east => file < 4 ? 1 : -1,
-        Direction.west => file < 4 ? -1 : 1,
-        _ => 0,
-      };
-      return (Position(rank, file, layer + dLayer), dir);
-    }
-    if (_ringSide != null) {
-      if (_ringSide.right() == pos._ringSide)  {
-        return (pos, _ringSide.right(3));
-      } else if (_ringSide.left() == pos._ringSide) {
-        return (pos, _ringSide.left(3));
-      }
-    }
-    return (pos, dir);
+  List<(Position, Direction)> nextCardinal(Direction dir) {
+    final d = diagonals;
+    if (d.length == 4) return [_nextPair(dir)];
+
+    var left = dir.left();
+    if (!d.contains(left)) left = dir;
+
+    var right = dir.right();
+    if (!d.contains(right)) right = dir;
+
+    return [_nextPair(left), _nextPair(right)];
   }
 
-  bool isRingCorner() =>
-      (rank == 2 || rank == 5) &&
-          (file == 2 || file == 5) &&
-          (layer == 1 || layer == 2);
+  (Position, Direction) _nextPair(Direction dir) {
+    final to = _nextPos(dir);
+    return (to, nextHeading(to, dir));
+  }
+
+  Position _nextPos(Direction dir) {
+    final mod = layer < 2 ? 1 : -1;
+    return switch ((dir, _ringSide?.dif(dir), layer)) {
+      (_, 4, _) => Position(rank, file, layer + mod),
+      (_, 0, 1) || (_, 0, 2) => Position(rank, file, layer - mod),
+      (Direction.north, _, _) => Position(rank + mod, file, layer),
+      (Direction.south, _, _) => Position(rank - mod, file, layer),
+      (Direction.east, _, _) => Position(rank, file + mod, layer),
+      (Direction.west, _, _) => Position(rank, file - mod, layer),
+      (_, 2, _) => _nextPos(dir.right()),
+      (_, -2, _) => _nextPos(dir.left()),
+      _ => this, // TODO: error
+    };
+  }
 
   List<Direction> get cardinals {
     if (_ringSide == null || _ringSide.isCardinal) {
