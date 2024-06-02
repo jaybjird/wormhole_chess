@@ -103,10 +103,15 @@ class Position {
   }
 
   Direction nextHeading(Position to, Direction dir) {
-    if (_ringSide == null) return dir;
-    return switch(to._ringSide?.dif(_ringSide)) {
-      -1 || 3 => dir.right(),
-      1 || -3 => dir.left(),
+    if (_ringSide == null || to._ringSide == null) return dir;
+    final dif = to._ringSide.dif(_ringSide);
+    final flip = layer < 2 != to.layer < 2;
+    return switch((dif, flip, dir.dif(_ringSide))) {
+      (4, true, 3) => dir.left(2),
+      (4, true, -3) => dir.right(2),
+      (-3 || 3, true, _) => dir.right(dif),
+      (-1 || 3, _, _) => dir.right(),
+      (1 || -3, _, _) => dir.left(),
       _ => dir
     };
   }
