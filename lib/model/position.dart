@@ -19,6 +19,8 @@ class Position {
     _ => null, // Included for exhaustiveness
   }?.right(layer < 2 ? 0 : 4); // Invert if on a reverse layer
 
+  get isWhite => (rank + file + layer) % 2 == 1;
+
   @override
   String toString() => 'Position{rank: $rank, file: $file, layer: $layer}';
 
