@@ -75,9 +75,9 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
   Map<Position, Direction> possibleMoves = {};
   List<Position> validMoves = [], invalidPawnAttacks = [];
 
-  void selectPiece(int rank, int file, int layer) {
+  void selectPiece(Position pos) {
     setState(() {
-      final pos = Position(rank, file, layer);
+      print("selectPiece $pos");
       final piece = board[pos];
       if (piece != null && pos != selected) {
         selected = pos;
@@ -98,9 +98,8 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     });
   }
 
-  void movePiece(int rank, int file, int layer) {
+  void movePiece(Position to) {
     setState(() {
-      final to = Position(rank, file, layer);
       final dir = possibleMoves[to];
       if (selected != null && dir != null) {
         board = board.movePiece(selected!, to, dir);
@@ -121,106 +120,300 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     });
   }
 
-  Widget _buildTiles(BuildContext context, BoxConstraints constraints, int mainLayer, int ringLayer) {
+  Widget _buildTiles(BuildContext context, BoxConstraints constraints, int planeLayer, int ringLayer) {
+    // TODO: Should already be a square, due to having [AspectRatio] as the parent, but additional enforcement may be prudent
     final size = constraints.maxHeight / 8;
     final center = Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-    final (w, h) = (center.dx / 4, center.dy / 4);
 
-    double outerRadius = size * sqrt(5);
-    double innerRadius = size * 1.6; // approx. avg(sqrt(5) + 1)
-    double voidRadius = size;
-    List<Widget> tiles = [
-      Positioned(left: w * 0, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 1, mainLayer))),
-      Positioned(left: w * 2, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 2, mainLayer))),
-      Positioned(left: w * 3, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 3, mainLayer))),
-      Positioned(left: w * 4, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 4, mainLayer))),
-      Positioned(left: w * 5, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 5, mainLayer))),
-      Positioned(left: w * 6, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 6, mainLayer))),
-      Positioned(left: w * 7, top: h * 0, child: SizedBox.square(dimension: size, child: _buildTile(7, 7, mainLayer))),
-      Positioned(left: w * 0, top: h * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 1, mainLayer))),
-      Positioned(left: w * 2, top: h * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 2, mainLayer))),
-      Positioned(left: w * 3, top: h * 1, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 3, -h * 1)), child: _buildTile(6, 3, mainLayer)))),
-      Positioned(left: w * 4, top: h * 1, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 4, -h * 1)), child: _buildTile(6, 4, mainLayer)))),
-      Positioned(left: w * 5, top: h * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 5, mainLayer))),
-      Positioned(left: w * 6, top: h * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 6, mainLayer))),
-      Positioned(left: w * 7, top: h * 1, child: SizedBox.square(dimension: size, child: _buildTile(6, 7, mainLayer))),
-      Positioned(left: w * 0, top: h * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 1, mainLayer))),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 206.5, sweepAngle: 37.0), child: _buildTile(5, 2, ringLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 243.5, sweepAngle: 26.5), child: _buildTile(5, 3, ringLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 270.0, sweepAngle: 26.5), child: _buildTile(5, 4, ringLayer)),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 296.5, sweepAngle: 37.0), child: _buildTile(5, 5, ringLayer)),
-      Positioned(left: w * 6, top: h * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 6, mainLayer))),
-      Positioned(left: w * 7, top: h * 2, child: SizedBox.square(dimension: size, child: _buildTile(5, 7, mainLayer))),
-      Positioned(left: w * 0, top: h * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 3, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 1, -h * 3)), child: _buildTile(4, 1, mainLayer)))),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 540.0, sweepAngle: 26.5), child: _buildTile(4, 2, ringLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 333.5, sweepAngle: 26.5), child: _buildTile(4, 5, ringLayer)),
-      Positioned(left: w * 6, top: h * 3, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 6, -h * 3)), child: _buildTile(4, 6, mainLayer)))),
-      Positioned(left: w * 7, top: h * 3, child: SizedBox.square(dimension: size, child: _buildTile(4, 7, mainLayer))),
-      Positioned(left: w * 0, top: h * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 4, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 1, -h * 4)), child: _buildTile(3, 1, mainLayer)))),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 513.5, sweepAngle: 26.5), child: _buildTile(3, 2, ringLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 360.0, sweepAngle: 26.5), child: _buildTile(3, 5, ringLayer)),
-      Positioned(left: w * 6, top: h * 4, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 6, -h * 4)), child: _buildTile(3, 6, mainLayer)))),
-      Positioned(left: w * 7, top: h * 4, child: SizedBox.square(dimension: size, child: _buildTile(3, 7, mainLayer))),
-      Positioned(left: w * 0, top: h * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 1, mainLayer))),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 476.5, sweepAngle: 37.0), child: _buildTile(2, 2, ringLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 450.0, sweepAngle: 26.5), child: _buildTile(2, 3, ringLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 423.5, sweepAngle: 26.5), child: _buildTile(2, 4, ringLayer)),
-      ClipPath(clipper: WarpingCornerClipper(innerRadius: innerRadius, outerRadius: outerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5, mainLayer)),
-      ClipPath(clipper: RingSegmentClipper(innerRadius: voidRadius, outerRadius: innerRadius, startAngle: 386.5, sweepAngle: 37.0), child: _buildTile(2, 5, ringLayer)),
-      Positioned(left: w * 6, top: h * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 6, mainLayer))),
-      Positioned(left: w * 7, top: h * 5, child: SizedBox.square(dimension: size, child: _buildTile(2, 7, mainLayer))),
-      Positioned(left: w * 0, top: h * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 1, mainLayer))),
-      Positioned(left: w * 2, top: h * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 2, mainLayer))),
-      Positioned(left: w * 3, top: h * 6, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 3, -h * 6)), child: _buildTile(1, 3, mainLayer)))),
-      Positioned(left: w * 4, top: h * 6, child: SizedBox.square(dimension: size, child: ClipPath( clipper: SquareWithArcClipper( arcRadius: outerRadius, center: center.translate(-w * 4, -h * 6)), child: _buildTile(1, 4, mainLayer)))),
-      Positioned(left: w * 5, top: h * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 5, mainLayer))),
-      Positioned(left: w * 6, top: h * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 6, mainLayer))),
-      Positioned(left: w * 7, top: h * 6, child: SizedBox.square(dimension: size, child: _buildTile(1, 7, mainLayer))),
-      Positioned(left: w * 0, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 0, mainLayer))),
-      Positioned(left: w * 1, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 1, mainLayer))),
-      Positioned(left: w * 2, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 2, mainLayer))),
-      Positioned(left: w * 3, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 3, mainLayer))),
-      Positioned(left: w * 4, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 4, mainLayer))),
-      Positioned(left: w * 5, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 5, mainLayer))),
-      Positioned(left: w * 6, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 6, mainLayer))),
-      Positioned(left: w * 7, top: h * 7, child: SizedBox.square(dimension: size, child: _buildTile(0, 7, mainLayer))),
-    ];
+    final outerRadius = size * sqrt(5);
+    final innerRadius = size * sqrt(2.5);
+    final voidRadius = size;
+    final sqrt_2 = sqrt(0.2);
+    final sqrt_8 = sqrt_2 * 2;
+
+    List<Widget> tiles = [];
+    for (final layer in [planeLayer, ringLayer]) {
+      for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+          final pos = Position(7 - y, x, layer);
+          if (!pos.inBoard) continue;
+          final baseRect = Rect.fromLTWH(x * size, y * size, size, size);
+          final tilePath = switch((x, y, layer == planeLayer)) {
+            (1, 3, true) => TilePath(
+              outerStart: baseRect.bottomLeft,
+              outerEnd: baseRect.topLeft,
+              innerStart: baseRect.topRight,
+              innerEnd: Offset(4 * size - outerRadius, baseRect.bottom),
+              innerRadius: outerRadius,
+            ),
+            (1, 4, true) => TilePath(
+              outerStart: baseRect.bottomLeft,
+              outerEnd: baseRect.topLeft,
+              innerStart: Offset(4 * size - outerRadius, baseRect.top),
+              innerEnd: baseRect.bottomRight,
+              innerRadius: outerRadius,
+            ),
+            (2, 2, true) => TilePath(
+              outerStart: baseRect.bottomLeft,
+              outerCorner: baseRect.topLeft,
+              outerEnd: baseRect.topRight,
+              innerStart: Offset((4 - sqrt1_2) * size, (4 - sqrt2) * size),
+              innerEnd: Offset((4 - sqrt2) * size, (4 - sqrt1_2) * size),
+              innerRadius: innerRadius,
+            ),
+            (2, 3, true) => TilePath(
+              outerStart: Offset(4 * size - outerRadius, baseRect.bottom),
+              outerEnd: baseRect.topLeft,
+              innerStart: Offset((4 - sqrt2) * size, (4 - sqrt1_2) * size),
+              innerEnd: Offset(4 * size - innerRadius, baseRect.bottom),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (2, 4, true) => TilePath(
+              outerStart: baseRect.bottomLeft,
+              outerEnd: Offset(4 * size - outerRadius, baseRect.top),
+              innerStart: Offset(4 * size - innerRadius, baseRect.top),
+              innerEnd: Offset((4 - sqrt2) * size, (4 + sqrt1_2) * size),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (2, 5, true) => TilePath(
+              outerStart: baseRect.bottomRight,
+              outerCorner: baseRect.bottomLeft,
+              outerEnd: baseRect.topLeft,
+              innerStart: Offset((4 - sqrt2) * size, (4 + sqrt1_2) * size),
+              innerEnd: Offset((4 - sqrt1_2) * size, (4 + sqrt2) * size),
+              innerRadius: innerRadius,
+            ),
+            (3, 1, true) => TilePath(
+              outerStart: baseRect.topLeft,
+              outerEnd: baseRect.topRight,
+              innerStart: Offset(baseRect.right, 4 * size - outerRadius),
+              innerEnd: baseRect.bottomLeft,
+              innerRadius: outerRadius,
+            ),
+            (3, 2, true) => TilePath(
+              outerStart: baseRect.topLeft,
+              outerEnd: Offset(baseRect.right, 4 * size - outerRadius),
+              innerStart: Offset(baseRect.right, 4 * size - innerRadius),
+              innerEnd: Offset((4 - sqrt1_2) * size, (4 - sqrt2) * size),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (3, 5, true) => TilePath(
+              outerStart: Offset(baseRect.right, 4 * size + outerRadius),
+              outerEnd: baseRect.bottomLeft,
+              innerStart: Offset((4 - sqrt1_2) * size, (4 + sqrt2) * size),
+              innerEnd: Offset(baseRect.right, 4 * size + innerRadius),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (3, 6, true) => TilePath(
+              outerStart: baseRect.bottomRight,
+              outerEnd: baseRect.bottomLeft,
+              innerStart: baseRect.topLeft,
+              innerEnd: Offset(baseRect.right, 4 * size + outerRadius),
+              innerRadius: outerRadius,
+            ),
+            (4, 1, true) => TilePath(
+              outerStart: baseRect.topLeft,
+              outerEnd: baseRect.topRight,
+              innerStart: baseRect.bottomRight,
+              innerEnd: Offset(baseRect.left, 4 * size - outerRadius),
+              innerRadius: outerRadius,
+            ),
+            (4, 2, true) => TilePath(
+              outerStart: Offset(baseRect.left, 4 * size - outerRadius),
+              outerEnd: baseRect.topRight,
+              innerStart: Offset((4 + sqrt1_2) * size, (4 - sqrt2) * size),
+              innerEnd: Offset(baseRect.left, 4 * size - innerRadius),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (4, 5, true) => TilePath(
+              outerStart: baseRect.bottomRight,
+              outerEnd: Offset(baseRect.left, 4 * size + outerRadius),
+              innerStart: Offset(baseRect.left, 4 * size + innerRadius),
+              innerEnd:  Offset((4 + sqrt1_2) * size, (4 + sqrt2) * size),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (4, 6, true) => TilePath(
+              outerStart: baseRect.bottomRight,
+              outerEnd: baseRect.bottomLeft,
+              innerStart: Offset(baseRect.left, 4 * size + outerRadius),
+              innerEnd: baseRect.topRight,
+              innerRadius: outerRadius,
+            ),
+            (5, 2, true) => TilePath(
+              outerStart: baseRect.topLeft,
+              outerCorner: baseRect.topRight,
+              outerEnd: baseRect.bottomRight,
+              innerStart: Offset((4 + sqrt2) * size, (4 - sqrt1_2) * size),
+              innerEnd: Offset((4 + sqrt1_2) * size, (4 - sqrt2) * size),
+              innerRadius: innerRadius,
+            ),
+            (5, 3, true) => TilePath(
+              outerStart: baseRect.topRight,
+              outerEnd: Offset(4 * size + outerRadius, baseRect.bottom),
+              innerStart: Offset(4 * size + innerRadius, baseRect.bottom),
+              innerEnd: Offset((4 + sqrt2) * size, (4 - sqrt1_2) * size),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (5, 4, true) => TilePath(
+              outerStart: Offset(4 * size + outerRadius, baseRect.top),
+              outerEnd: baseRect.bottomRight,
+              innerStart: Offset((4 + sqrt2) * size, (4 + sqrt1_2) * size),
+              innerEnd: Offset(4 * size + innerRadius, baseRect.top),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (5, 5, true) => TilePath(
+              outerStart: baseRect.topRight,
+              outerCorner: baseRect.bottomRight,
+              outerEnd: baseRect.bottomLeft,
+              innerStart: Offset((4 + sqrt1_2) * size, (4 + sqrt2) * size),
+              innerEnd: Offset((4 + sqrt2) * size, (4 + sqrt1_2) * size),
+              innerRadius: innerRadius,
+            ),
+            (6, 3, true) => TilePath(
+              outerStart: baseRect.topRight,
+              outerEnd: baseRect.bottomRight,
+              innerStart: Offset(4 * size + outerRadius, baseRect.bottom),
+              innerEnd: baseRect.topLeft,
+              innerRadius: outerRadius,
+            ),
+            (6, 4, true) => TilePath(
+              outerStart: baseRect.topRight,
+              outerEnd: baseRect.bottomRight,
+              innerStart: baseRect.bottomLeft,
+              innerEnd: Offset(4 * size + outerRadius, baseRect.top),
+              innerRadius: outerRadius,
+            ),
+            (2, 2, false) => TilePath(
+              outerStart: Offset((4 - sqrt2) * size, (4 - sqrt1_2) * size),
+              outerEnd: Offset((4 - sqrt1_2) * size, (4 - sqrt2) * size),
+              innerStart: Offset((4 - sqrt_2) * size, (4 - sqrt_8) * size),
+              innerEnd: Offset((4 - sqrt_8) * size, (4 - sqrt_2) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (2, 3, false) => TilePath(
+              outerStart: Offset(4 * size - innerRadius, baseRect.bottom),
+              outerEnd: Offset((4 - sqrt2) * size, (4 - sqrt1_2) * size),
+              innerStart: Offset((4 - sqrt_8) * size, (4 - sqrt_2) * size),
+              innerEnd: Offset(4 * size - voidRadius, baseRect.bottom),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (2, 4, false) => TilePath(
+              outerStart: Offset((4 - sqrt2) * size, (4 + sqrt1_2) * size),
+              outerEnd: Offset(4 * size - innerRadius, baseRect.top),
+              innerStart: Offset(4 * size - voidRadius, baseRect.top),
+              innerEnd: Offset((4 - sqrt_8) * size, (4 + sqrt_2) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (2, 5, false) => TilePath(
+              outerStart: Offset((4 - sqrt1_2) * size, (4 + sqrt2) * size),
+              outerEnd: Offset((4 - sqrt2) * size, (4 + sqrt1_2) * size),
+              innerStart: Offset((4 - sqrt_8) * size, (4 + sqrt_2) * size),
+              innerEnd: Offset((4 - sqrt_2) * size, (4 + sqrt_8) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (3, 2, false) => TilePath(
+              outerStart: Offset((4 - sqrt1_2) * size, (4 - sqrt2) * size),
+              outerEnd: Offset(baseRect.right, 4 * size - innerRadius),
+              innerStart: Offset(baseRect.right, 4 * size - voidRadius),
+              innerEnd: Offset((4 - sqrt_2) * size, (4 - sqrt_8) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (3, 5, false) => TilePath(
+              outerStart: Offset(baseRect.right, 4 * size + innerRadius),
+              outerEnd: Offset((4 - sqrt1_2) * size, (4 + sqrt2) * size),
+              innerStart: Offset((4 - sqrt_2) * size, (4 + sqrt_8) * size),
+              innerEnd: Offset(baseRect.right, 4 * size + voidRadius),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (4, 2, false) => TilePath(
+              outerStart: Offset(baseRect.left, 4 * size - innerRadius),
+              outerEnd: Offset((4 + sqrt1_2) * size, (4 - sqrt2) * size),
+              innerStart: Offset((4 + sqrt_2) * size, (4 - sqrt_8) * size),
+              innerEnd: Offset(baseRect.left, 4 * size - voidRadius),
+              outerRadius: outerRadius,
+              innerRadius: innerRadius,
+            ),
+            (4, 5, false) => TilePath(
+              outerStart: Offset((4 + sqrt1_2) * size, (4 + sqrt2) * size),
+              outerEnd: Offset(baseRect.left, 4 * size + innerRadius),
+              innerStart: Offset(baseRect.left, 4 * size + voidRadius),
+              innerEnd: Offset((4 + sqrt_2) * size, (4 + sqrt_8) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (5, 2, false) => TilePath(
+              outerStart: Offset((4 + sqrt1_2) * size, (4 - sqrt2) * size),
+              outerEnd: Offset((4 + sqrt2) * size, (4 - sqrt1_2) * size),
+              innerStart: Offset((4 + sqrt_8) * size, (4 - sqrt_2) * size),
+              innerEnd: Offset((4 + sqrt_2) * size, (4 - sqrt_8) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (5, 3, false) => TilePath(
+              outerStart: Offset((4 + sqrt2) * size, (4 - sqrt1_2) * size),
+              outerEnd: Offset(4 * size + innerRadius, baseRect.bottom),
+              innerStart: Offset(4 * size + voidRadius, baseRect.bottom),
+              innerEnd: Offset((4 + sqrt_8) * size, (4 - sqrt_2) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (5, 4, false) => TilePath(
+              outerStart: Offset(4 * size + innerRadius, baseRect.top),
+              outerEnd: Offset((4 + sqrt2) * size, (4 + sqrt1_2) * size),
+              innerStart: Offset((4 + sqrt_8) * size, (4 + sqrt_2) * size),
+              innerEnd: Offset(4 * size + voidRadius, baseRect.top),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            (5, 5, false) => TilePath(
+              outerStart: Offset((4 + sqrt2) * size, (4 + sqrt1_2) * size),
+              outerEnd: Offset((4 + sqrt1_2) * size, (4 + sqrt2) * size),
+              innerStart: Offset((4 + sqrt_2) * size, (4 + sqrt_8) * size),
+              innerEnd: Offset((4 + sqrt_8) * size, (4 + sqrt_2) * size),
+              outerRadius: innerRadius,
+              innerRadius: voidRadius,
+            ),
+            _ => TilePath(
+                outerStart: baseRect.topLeft,
+                outerEnd: baseRect.topRight,
+                innerStart: baseRect.bottomRight,
+                innerEnd: baseRect.bottomLeft,
+              ),
+          };
+          final tile = Tile(
+            path: tilePath,
+            onTap: validMoves.contains(pos)
+                ? () => movePiece(pos)
+                : () => selectPiece(pos),
+            isSelected: selected == pos,
+            isValidMove: validMoves.contains(pos),
+            isInvalidPawnAttack: invalidPawnAttacks.contains(pos),
+            isThreatened: possibleMoves.containsKey(pos) &&
+                !validMoves.contains(pos),
+            piece: board[pos],
+            direction: layer < 2 ? possibleMoves[pos] : possibleMoves[pos]?.right(4),
+            isWhite: pos.isWhite,
+          );
+          tiles.add(tile);
+        }
+      }
+    }
 
     return Stack(children: tiles);
-  }
-
-  Tile _buildTile(int rank, int file, int layer) {
-    final pos = Position(rank, file, layer);
-    return Tile(
-      onTap: validMoves.contains(pos)
-          ? () => movePiece(rank, file, layer)
-          : () => selectPiece(rank, file, layer),
-      isSelected: selected == pos,
-      isValidMove: validMoves.contains(pos),
-      isInvalidPawnAttack: invalidPawnAttacks.contains(pos),
-      isThreatened: possibleMoves.containsKey(pos) &&
-          !validMoves.contains(pos),
-      piece: board[pos],
-      isWhite: (rank + file + layer) % 2 == 1,
-    );
   }
 
   @override
@@ -248,6 +441,93 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
         ),
       ),
     );
+  }
+}
+
+class TilePath {
+  final Offset outerStart, outerEnd, innerStart, innerEnd;
+  final Offset? outerCorner;
+  final double? outerRadius, innerRadius;
+
+  TilePath(
+      {required this.outerStart,
+      required this.outerEnd,
+      required this.innerStart,
+      required this.innerEnd,
+      this.outerCorner,
+      this.outerRadius,
+      this.innerRadius});
+
+  List<Offset> get points => [
+        outerStart,
+        if (outerCorner != null) outerCorner!,
+        outerEnd,
+        innerEnd,
+        innerStart,
+      ];
+
+  Rect get rect {
+    final p = points;
+    final x = p.map((p) => p.dx);
+    final y = p.map((p) => p.dy);
+    return Rect.fromLTRB(
+      x.reduce(min),
+      y.reduce(min),
+      x.reduce(max),
+      y.reduce(max),
+    );
+  }
+
+  TilePath translate(double dx, double dy) {
+    return TilePath(
+      outerStart: outerStart.translate(dx, dy),
+      outerCorner: outerCorner?.translate(dx, dy),
+      outerEnd: outerEnd.translate(dx, dy),
+      innerStart: innerStart.translate(dx, dy),
+      innerEnd: innerEnd.translate(dx, dy),
+      outerRadius: outerRadius,
+      innerRadius: innerRadius,
+    );
+  }
+}
+
+class TileClipper extends CustomClipper<Path> {
+  final TilePath tilePath;
+
+  const TileClipper(this.tilePath);
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.moveTo(tilePath.outerStart.dx, tilePath.outerStart.dy);
+    if (tilePath.outerCorner != null) {
+      path.lineTo(tilePath.outerCorner!.dx, tilePath.outerCorner!.dy);
+    }
+    if (tilePath.outerRadius != null) {
+      path.arcToPoint(
+        tilePath.outerEnd,
+        radius: Radius.circular(tilePath.outerRadius!),
+      );
+    } else {
+      path.lineTo(tilePath.outerEnd.dx, tilePath.outerEnd.dy);
+    }
+    path.lineTo(tilePath.innerStart.dx, tilePath.innerStart.dy);
+    if (tilePath.innerRadius != null) {
+      path.arcToPoint(
+        tilePath.innerEnd,
+        radius: Radius.circular(tilePath.innerRadius!),
+        clockwise: false,
+      );
+    } else {
+      path.lineTo(tilePath.innerEnd.dx, tilePath.innerEnd.dy);
+    }
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return true;
   }
 }
 
@@ -281,207 +561,28 @@ class Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        color: color,
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: piece != null ? SvgPicture.asset(piece!.imagePath) : null,
-        )
-      ),
+    Widget content = Container(
+      color: color,
+      child: switch (direction) {
+        _ when piece != null => SvgPicture.asset(piece!.imagePath),
+        Direction.north => const HeroIcon(HeroIcons.arrowUp),
+        Direction.northeast => const HeroIcon(HeroIcons.arrowUpRight),
+        Direction.northwest => const HeroIcon(HeroIcons.arrowUpLeft),
+        Direction.south => const HeroIcon(HeroIcons.arrowDown),
+        Direction.southeast => const HeroIcon(HeroIcons.arrowDownRight),
+        Direction.southwest => const HeroIcon(HeroIcons.arrowDownLeft),
+        Direction.east => const HeroIcon(HeroIcons.arrowRight),
+        Direction.west => const HeroIcon(HeroIcons.arrowLeft),
+        _ => null,
+      },
     );
-  }
-}
-
-class RingSegmentClipper extends CustomClipper<Path> {
-  final double innerRadius;
-  final double outerRadius;
-  final double startAngle;
-  final double sweepAngle;
-
-  RingSegmentClipper({
-    required this.innerRadius,
-    required this.outerRadius,
-    required this.startAngle,
-    required this.sweepAngle,
-  });
-
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-
-    final center = Offset(size.width / 2, size.height / 2);
-
-    final startAngleRad = startAngle * (3.1415926535897932 / 180);
-    final sweepAngleRad = sweepAngle * (3.1415926535897932 / 180);
-
-    path.moveTo(center.dx + innerRadius * cos(startAngleRad),
-        center.dy + innerRadius * sin(startAngleRad));
-
-    path.arcTo(
-      Rect.fromCircle(center: center, radius: outerRadius),
-      startAngleRad,
-      sweepAngleRad,
-      false,
+    final rect = path.rect;
+    return Positioned.fromRect(
+      rect: rect,
+      child: GestureDetector(
+        onTap: onTap,
+        child: ClipPath(clipper: TileClipper(path.translate(-rect.left, -rect.top)), child: content),
+      )
     );
-
-    path.lineTo(center.dx + outerRadius * cos(startAngleRad + sweepAngleRad),
-        center.dy + outerRadius * sin(startAngleRad + sweepAngleRad));
-
-    path.arcTo(
-      Rect.fromCircle(center: center, radius: innerRadius),
-      startAngleRad + sweepAngleRad,
-      -sweepAngleRad,
-      false,
-    );
-
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return true;
-  }
-}
-
-class WarpingCornerClipper extends CustomClipper<Path> {
-  final double innerRadius;
-  final double outerRadius;
-  final double startAngle;
-  final double sweepAngle;
-
-  WarpingCornerClipper({
-    required this.innerRadius,
-    required this.outerRadius,
-    required this.startAngle,
-    required this.sweepAngle,
-  });
-
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-
-    final center = Offset(size.width / 2, size.height / 2);
-
-    final startAngleRad = startAngle * (3.1415926535897932 / 180);
-    final sweepAngleRad = sweepAngle * (3.1415926535897932 / 180);
-
-    path.moveTo(center.dx + innerRadius * cos(startAngleRad),
-        center.dy + innerRadius * sin(startAngleRad));
-
-    path.arcTo(
-      Rect.fromCircle(center: center, radius: innerRadius),
-      startAngleRad,
-      sweepAngleRad,
-      false,
-    );
-
-    path.lineTo(center.dx + outerRadius * cos(startAngleRad + sweepAngleRad),
-        center.dy + outerRadius * sin(startAngleRad + sweepAngleRad));
-
-    if (cos(startAngleRad) * sin(startAngleRad) > 0) {
-      path.lineTo(center.dx + outerRadius * cos(startAngleRad),
-          center.dy + outerRadius * sin(startAngleRad + sweepAngleRad));
-    } else {
-      path.lineTo(center.dx + outerRadius * cos(startAngleRad + sweepAngleRad),
-          center.dy + outerRadius * sin(startAngleRad));
-    }
-
-    path.lineTo(center.dx + outerRadius * cos(startAngleRad),
-        center.dy + outerRadius * sin(startAngleRad));
-
-    path.moveTo(center.dx + innerRadius * cos(startAngleRad + sweepAngleRad),
-        center.dy + innerRadius * sin(startAngleRad + sweepAngleRad));
-
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return true;
-  }
-}
-
-class SquareWithArcClipper extends CustomClipper<Path> {
-  final double arcRadius;
-  final Offset center;
-
-  SquareWithArcClipper({
-    required this.arcRadius,
-    required this.center,
-  });
-
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-
-    final (w, h) = (size.width, size.height);
-
-    if (center.dx < 0) {
-      if (center.dy > 0) {
-        path.moveTo(0, 0);
-        path.arcToPoint(Offset(center.dx + arcRadius, h), radius: Radius.circular(arcRadius));
-        path.lineTo(w, h);
-        path.lineTo(w, 0);
-        path.lineTo(0, 0);
-      } else {
-        path.moveTo(center.dx + arcRadius, 0);
-        path.arcToPoint(Offset(0, h), radius: Radius.circular(arcRadius));
-        path.lineTo(w, h);
-        path.lineTo(w, 0);
-        path.lineTo(center.dx + arcRadius, 0);
-      }
-    } else if (center.dy < 0) {
-      if (center.dx > 0) {
-        path.moveTo(0, 0);
-        path.lineTo(0, h);
-        path.lineTo(w, h);
-        path.lineTo(w, center.dy + arcRadius);
-        path.arcToPoint(const Offset(0, 0), radius: Radius.circular(arcRadius));
-      } else {
-        path.moveTo(0, center.dy + arcRadius);
-        path.lineTo(0, h);
-        path.lineTo(w, h);
-        path.lineTo(w, 0);
-        path.arcToPoint(Offset(0, center.dy + arcRadius), radius: Radius.circular(arcRadius));
-      }
-    } else if (center.dx == 0) {
-      path.moveTo(0, 0);
-      path.lineTo(0, center.dy - arcRadius);
-      path.arcToPoint(Offset(w, h), radius: Radius.circular(arcRadius));
-      path.lineTo(w, 0);
-      path.lineTo(0, 0);
-    } else if (center.dy == 0) {
-      path.moveTo(0, 0);
-      path.lineTo(0, h);
-      path.lineTo(w, h);
-      path.arcToPoint(Offset(center.dx - arcRadius, 0), radius: Radius.circular(arcRadius));
-      path.lineTo(0, 0);
-    } else if (center.dx < center.dy) {
-      path.moveTo(0, 0);
-      path.lineTo(0, h);
-      path.arcToPoint(Offset(w, center.dy - arcRadius), radius: Radius.circular(arcRadius));
-      path.lineTo(w, 0);
-      path.lineTo(0, 0);
-    } else {
-      path.moveTo(0, 0);
-      path.lineTo(0, h);
-      path.lineTo(center.dx - arcRadius, h);
-      path.arcToPoint(Offset(w, 0), radius: Radius.circular(arcRadius));
-      path.lineTo(0, 0);
-    }
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
-    return true;
   }
 }
