@@ -392,7 +392,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
           };
           final tile = Tile(
             path: tilePath,
-            onTap: validMoves.contains(pos)
+            onTap: validMoves.contains(pos) && board[selected]?.isWhite == board.player
                 ? () => movePiece(pos)
                 : () => selectPiece(pos),
             isSelected: selected == pos,
