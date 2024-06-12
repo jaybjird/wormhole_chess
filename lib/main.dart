@@ -32,7 +32,7 @@ class GameBoardWidget extends StatefulWidget {
 }
 
 class _GameBoardWidgetState extends State<GameBoardWidget> {
-  GameBoard board = GameBoard(turn: 2, board: {
+  GameBoard board = GameBoard(turn: 1, board: {
     Position(1, 0, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
     Position(1, 1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
     Position(1, 2, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
@@ -41,8 +41,6 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     Position(1, 5, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
     Position(1, 6, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
     Position(1, 7, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-
-
     Position(0, 0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook, direction: Direction.north),
     Position(0, 1, 0): ChessPiece(isWhite: true, type: ChessPieceType.knight, direction: Direction.north),
     Position(0, 2, 0): ChessPiece(isWhite: true, type: ChessPieceType.bishop, direction: Direction.north),
@@ -51,7 +49,6 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
     Position(0, 5, 0): ChessPiece(isWhite: true, type: ChessPieceType.bishop, direction: Direction.north),
     Position(0, 6, 0): ChessPiece(isWhite: true, type: ChessPieceType.knight, direction: Direction.north),
     Position(0, 7, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook, direction: Direction.north),
-
     Position(6, 0, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
     Position(6, 1, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
     Position(6, 2, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
@@ -422,19 +419,26 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Center(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 3, 2)),
+            const SizedBox(height: 40),
+            Text("${board.turn % 2 == 1 ? "White" : "Black"}'s Turn"),
+            Flexible(
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 3, 2)),
+                ),
               ),
             ),
-            const SizedBox.square(dimension: 40),
-            Center(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 0, 1)),
+            const SizedBox.square(dimension: 20),
+            Flexible(
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 0, 1)),
+                ),
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
