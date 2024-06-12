@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:wormhole_chess/model/position.dart';
 
 import 'chess_piece.dart';
@@ -178,7 +180,6 @@ class GameBoard {
 
   /// Returns a new [GameBoard] where the [ChessPiece] at position [from] is moved to position [to] facing the given [Direction].
   GameBoard movePiece(Position from, Position to, Direction dir) {
-    print("movePiece $dir");
     final next = Map<Position, ChessPiece>.from(_board);
     final piece = next.remove(from);
     if (piece != null) {
@@ -223,5 +224,67 @@ class GameBoard {
     // }
 
     return GameBoard(turn: turn + 1, board: next);
+  }
+
+
+  (Position, Position, Direction) getBestMove(int depth) {
+    final isWhite = turn % 2 == 1;
+    int bestScore = -9999;
+    List<(Position, Position, Direction)> bestMoves = [];
+
+    _board.forEach((from, piece) {
+      final moves = getRawValidMoves(from, piece);
+      if (piece.isWhite != isWhite) return;
+      moves.forEach((to, dir) {
+        final nextBoard = movePiece(from, to, dir);
+        final map = nextBoard._getBestScore(depth - 1);
+        final score = map[isWhite]! - map[!isWhite]!;
+        if (bestScore < score) {
+          bestScore = score;
+          bestMoves = [(from, to, dir)];
+        } else if (bestScore == score) {
+          bestMoves.add((from, to, dir));
+        }
+      });
+    });
+
+    // TODO: handle or prevent cases where there are no moves
+    return bestMoves[Random().nextInt(bestMoves.length)];
+  }
+
+  Map<bool, int> _getBestScore(int depth) {
+    if (depth == 0) return evaluateBoard();
+
+    final isWhite = turn % 2 == 1;
+    final counts = {true: 0, false: 0};
+    var best = {true: 0, false: 0};
+    int bestScore = -9999;
+
+    _board.forEach((from, piece) {
+      final moves = getRawValidMoves(from, piece);
+      counts[piece.isWhite] = counts[piece.isWhite]! + moves.length;
+      if (piece.isWhite != isWhite) return;
+      moves.forEach((to, dir) {
+        final map = movePiece(from, to, dir)._getBestScore(depth - 1);
+        final score = map[isWhite]! - map[!isWhite]!;
+        if (bestScore < score) {
+          bestScore = score;
+          best = map;
+        }
+      });
+    });
+
+    // Add the number of possible moves to the evaluation to encourage mobility
+    counts.forEach((player, count) => best[player] = best[player]! + count);
+
+    return best;
+  }
+
+  Map<bool, int> evaluateBoard() {
+    final score = {true: 0, false: 0};
+    for (var piece in _board.values) {
+      score[piece.isWhite] = score[piece.isWhite]! + piece.type.value;
+    }
+    return score;
   }
 }

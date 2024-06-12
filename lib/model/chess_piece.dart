@@ -1,6 +1,17 @@
 import 'direction.dart';
 
-enum ChessPieceType { pawn, rook, knight, bishop, queen, king }
+enum ChessPieceType {
+  pawn(10),
+  rook(50),
+  knight(30),
+  bishop(30),
+  queen(100),
+  king(1000);
+
+  final int value;
+
+  const ChessPieceType(this.value);
+}
 
 class ChessPiece {
   final ChessPieceType type;
