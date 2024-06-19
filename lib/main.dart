@@ -33,38 +33,38 @@ class GameBoardWidget extends StatefulWidget {
 
 class _GameBoardWidgetState extends State<GameBoardWidget> {
   GameBoard board = GameBoard(turn: 1, board: {
-    Position(1, 0, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 1, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 2, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 3, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 4, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 5, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 6, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 7, 0): ChessPiece(isWhite: true, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(0, 0, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook, direction: Direction.north),
-    Position(0, 1, 0): ChessPiece(isWhite: true, type: ChessPieceType.knight, direction: Direction.north),
-    Position(0, 2, 0): ChessPiece(isWhite: true, type: ChessPieceType.bishop, direction: Direction.north),
-    Position(0, 3, 0): ChessPiece(isWhite: true, type: ChessPieceType.queen, direction: Direction.north),
-    Position(0, 4, 0): ChessPiece(isWhite: true, type: ChessPieceType.king, direction: Direction.north),
-    Position(0, 5, 0): ChessPiece(isWhite: true, type: ChessPieceType.bishop, direction: Direction.north),
-    Position(0, 6, 0): ChessPiece(isWhite: true, type: ChessPieceType.knight, direction: Direction.north),
-    Position(0, 7, 0): ChessPiece(isWhite: true, type: ChessPieceType.rook, direction: Direction.north),
-    Position(6, 0, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 1, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 2, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 3, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 4, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 5, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 6, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 7, 0): ChessPiece(isWhite: false, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(7, 0, 0): ChessPiece(isWhite: false, type: ChessPieceType.rook, direction: Direction.south),
-    Position(7, 1, 0): ChessPiece(isWhite: false, type: ChessPieceType.knight, direction: Direction.south),
-    Position(7, 2, 0): ChessPiece(isWhite: false, type: ChessPieceType.bishop, direction: Direction.south),
-    Position(7, 3, 0): ChessPiece(isWhite: false, type: ChessPieceType.queen, direction: Direction.south),
-    Position(7, 4, 0): ChessPiece(isWhite: false, type: ChessPieceType.king, direction: Direction.south),
-    Position(7, 5, 0): ChessPiece(isWhite: false, type: ChessPieceType.bishop, direction: Direction.south),
-    Position(7, 6, 0): ChessPiece(isWhite: false, type: ChessPieceType.knight, direction: Direction.south),
-    Position(7, 7, 0): ChessPiece(isWhite: false, type: ChessPieceType.rook, direction: Direction.south),
+    Position(1, 0, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(1, 1, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(1, 2, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(1, 3, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(1, 4, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(1, 5, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(1, 6, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(1, 7, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
+    Position(0, 0, 0): ChessPiece(player: Player.white, type: ChessPieceType.rook, direction: Direction.north),
+    Position(0, 1, 0): ChessPiece(player: Player.white, type: ChessPieceType.knight, direction: Direction.north),
+    Position(0, 2, 0): ChessPiece(player: Player.white, type: ChessPieceType.bishop, direction: Direction.north),
+    Position(0, 3, 0): ChessPiece(player: Player.white, type: ChessPieceType.queen, direction: Direction.north),
+    Position(0, 4, 0): ChessPiece(player: Player.white, type: ChessPieceType.king, direction: Direction.north),
+    Position(0, 5, 0): ChessPiece(player: Player.white, type: ChessPieceType.bishop, direction: Direction.north),
+    Position(0, 6, 0): ChessPiece(player: Player.white, type: ChessPieceType.knight, direction: Direction.north),
+    Position(0, 7, 0): ChessPiece(player: Player.white, type: ChessPieceType.rook, direction: Direction.north),
+    Position(6, 0, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(6, 1, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(6, 2, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(6, 3, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(6, 4, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(6, 5, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(6, 6, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(6, 7, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
+    Position(7, 0, 0): ChessPiece(player: Player.black, type: ChessPieceType.rook, direction: Direction.south),
+    Position(7, 1, 0): ChessPiece(player: Player.black, type: ChessPieceType.knight, direction: Direction.south),
+    Position(7, 2, 0): ChessPiece(player: Player.black, type: ChessPieceType.bishop, direction: Direction.south),
+    Position(7, 3, 0): ChessPiece(player: Player.black, type: ChessPieceType.queen, direction: Direction.south),
+    Position(7, 4, 0): ChessPiece(player: Player.black, type: ChessPieceType.king, direction: Direction.south),
+    Position(7, 5, 0): ChessPiece(player: Player.black, type: ChessPieceType.bishop, direction: Direction.south),
+    Position(7, 6, 0): ChessPiece(player: Player.black, type: ChessPieceType.knight, direction: Direction.south),
+    Position(7, 7, 0): ChessPiece(player: Player.black, type: ChessPieceType.rook, direction: Direction.south),
   });
 
   Position? selected;
@@ -108,10 +108,10 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
       possibleMoves = {};
       invalidPawnAttacks = [];
       // TODO: Do something with check
-      if (board.isKingInCheck(true)) {
+      if (board.isKingInCheck(Player.white)) {
          print("White in check");
       }
-      if (board.isKingInCheck(false)) {
+      if (board.isKingInCheck(Player.black)) {
         print("Black in check");
       }
     });
@@ -392,7 +392,7 @@ class _GameBoardWidgetState extends State<GameBoardWidget> {
           };
           final tile = Tile(
             path: tilePath,
-            onTap: validMoves.contains(pos) && board[selected]?.isWhite == board.player
+            onTap: validMoves.contains(pos) && board[selected]?.player == board.player
                 ? () => movePiece(pos)
                 : () => selectPiece(pos),
             isSelected: selected == pos,

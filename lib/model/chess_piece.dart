@@ -13,19 +13,21 @@ enum ChessPieceType {
   const ChessPieceType(this.value);
 }
 
+enum Player { white, black, amber, purple }
+
 class ChessPiece {
   final ChessPieceType type;
-  final bool isWhite;
+  final Player player;
   final String imagePath;
   final int? firstMoved;
   final Direction direction;
 
   ChessPiece({
     required this.type,
-    required this.isWhite,
+    required this.player,
     required this.direction,
     this.firstMoved,
-  }) : imagePath = 'assets/${isWhite ? 'white' : 'black'}/${type.name}.svg';
+  }) : imagePath = 'assets/${player.name}/${type.name}.svg';
 
   ChessPiece.from({
     required ChessPiece from,
@@ -34,7 +36,7 @@ class ChessPiece {
     int? firstMoved,
   }) : this(
     type: type ?? from.type,
-    isWhite: from.isWhite,
+    player: from.player,
     firstMoved: firstMoved ?? from.firstMoved,
     direction: direction ?? from.direction,
   );

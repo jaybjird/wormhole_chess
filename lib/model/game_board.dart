@@ -14,19 +14,19 @@ class GameBoard {
     required Map<Position, ChessPiece> board,
   }) : _board = board;
 
-  bool get player => turn % 2 == 1;
+  Player get player => Player.values[(turn + 1) % 2];
 
   ChessPiece? operator [](Position? pos) => _board[pos];
 
-  Position getKing(bool isWhite) => _board.keys.firstWhere((pos) =>
+  Position? getKing(Player player) => _board.keys.where((pos) =>
   _board[pos]?.type == ChessPieceType.king &&
-      _board[pos]?.isWhite == isWhite);
+      _board[pos]?.player == player).firstOrNull;
 
-  bool isKingInCheck(bool isWhite) {
-    final kingPosition = getKing(isWhite);
-    return _board.entries.any((e) {
+  bool isKingInCheck(Player player) {
+    final kingPosition = getKing(player);
+    return kingPosition == null || _board.entries.any((e) {
       final piece = e.value;
-      if (piece.isWhite == isWhite) return false;
+      if (piece.player == player) return false;
       final moves = getRawValidMoves(e.key, piece);
       return moves.keys.any((pos) => pos == kingPosition);
     });
@@ -58,8 +58,10 @@ class GameBoard {
         ...moves1
             .expand((move) => move.$1.nextCardinal(move.$2))
             .where((move) => move.$1.inBoard && _board[move.$1] == null),
-      ...getPawnAttacks(pos, pawn)
-          .where((move) => _board[move.$1]?.isWhite == !pawn.isWhite),
+      ...getPawnAttacks(pos, pawn).where((move) {
+        final piece = _board[move.$1];
+        return piece != null && piece.player != pawn.player;
+      }),
       // TODO: en passant
     ];
   }
@@ -116,7 +118,7 @@ class GameBoard {
     };
     final Map<Position, Direction> moveMap = {};
     for (final (pos, dir) in moveList) {
-      if (!pos.inBoard || _board[pos]?.isWhite == piece.isWhite) continue;
+      if (!pos.inBoard || _board[pos]?.player == piece.player) continue;
       moveMap[pos] = dir;
     }
     return moveMap;
@@ -167,7 +169,7 @@ class GameBoard {
       if (piece != null) {
         return piece.type == ChessPieceType.rook &&
             piece.firstMoved == null &&
-            piece.isWhite == king.isWhite;
+            piece.player == king.player;
       }
     }
   }
@@ -175,7 +177,7 @@ class GameBoard {
   List<Position> getRealValidMoves(Position pos, ChessPiece piece) {
     return [
       for (final move in getRawValidMoves(pos, piece).entries)
-        if (!movePiece(pos, move.key, move.value).isKingInCheck(piece.isWhite))
+        if (!movePiece(pos, move.key, move.value).isKingInCheck(piece.player))
           move.key,
     ];
   }
@@ -235,11 +237,11 @@ class GameBoard {
 
     _board.forEach((from, piece) {
       final moves = getRawValidMoves(from, piece);
-      if (piece.isWhite != player) return;
+      if (piece.player != player) return;
       moves.forEach((to, dir) {
         final nextBoard = movePiece(from, to, dir);
         final map = nextBoard._getBestScore(depth - 1);
-        final score = map[player]! - map[!player]!;
+        final score = map[player]! - map[nextBoard.player]!;
         if (bestScore < score) {
           bestScore = score;
           bestMoves = [(from, to, dir)];
@@ -253,20 +255,21 @@ class GameBoard {
     return bestMoves[Random().nextInt(bestMoves.length)];
   }
 
-  Map<bool, int> _getBestScore(int depth) {
+  Map<Player, int> _getBestScore(int depth) {
     if (depth == 0) return evaluateBoard();
 
-    final counts = {true: 0, false: 0};
-    var best = {true: 0, false: 0};
+    final counts = {Player.white: 0, Player.black: 0};
+    var best = {Player.white: 0, Player.black: 0};
     int bestScore = -9999;
 
     _board.forEach((from, piece) {
       final moves = getRawValidMoves(from, piece);
-      counts[piece.isWhite] = counts[piece.isWhite]! + moves.length;
-      if (piece.isWhite != player) return;
+      counts[piece.player] = counts[piece.player]! + moves.length;
+      if (piece.player != player) return;
       moves.forEach((to, dir) {
-        final map = movePiece(from, to, dir)._getBestScore(depth - 1);
-        final score = map[player]! - map[!player]!;
+        final next = movePiece(from, to, dir);
+        final map = next._getBestScore(depth - 1);
+        final score = map[player]! - map[next.player]!;
         if (bestScore < score) {
           bestScore = score;
           best = map;
@@ -280,10 +283,10 @@ class GameBoard {
     return best;
   }
 
-  Map<bool, int> evaluateBoard() {
-    final score = {true: 0, false: 0};
+  Map<Player, int> evaluateBoard() {
+    final score = {Player.white: 0, Player.black: 0};
     for (var piece in _board.values) {
-      score[piece.isWhite] = score[piece.isWhite]! + piece.type.value;
+      score[piece.player] = score[piece.player]! + piece.type.value;
     }
     return score;
   }
