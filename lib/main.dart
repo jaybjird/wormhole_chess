@@ -1,14 +1,19 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:wormhole_chess/widgets/tile.dart';
 import 'dart:math';
 
+import 'firebase_options.dart';
 import 'model/chess_piece.dart';
 import 'model/direction.dart';
 import 'model/game_board.dart';
 import 'model/position.dart';
 
 
-void main() {
+void main() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
