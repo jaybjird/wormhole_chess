@@ -1,0 +1,55 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "wormhole-chess",
+          "appId": "1:607329940868:android:af179a6aecfd3ac2bdd9d1",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "wormhole-chess",
+          "appId": "1:607329940868:ios:43398665b81e9f54bdd9d1",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "wormhole-chess",
+          "appId": "1:607329940868:ios:43398665b81e9f54bdd9d1",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "wormhole-chess",
+          "configurations": {
+            "android": "1:607329940868:android:af179a6aecfd3ac2bdd9d1",
+            "ios": "1:607329940868:ios:43398665b81e9f54bdd9d1",
+            "macos": "1:607329940868:ios:43398665b81e9f54bdd9d1",
+            "web": "1:607329940868:web:fb0d6ffddd669f3cbdd9d1",
+            "windows": "1:607329940868:web:0d6dc097402a1844bdd9d1"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
