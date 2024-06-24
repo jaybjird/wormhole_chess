@@ -134,6 +134,7 @@ class Tile extends StatelessWidget {
             clipper: TileClipper(path.translate(-rect.left, -rect.top)),
             child: Container(
               color: color,
+              // TODO: Replace font awesome icons
               child: piece != null ? SvgPicture.asset(piece!.imagePath) : null,
             ),
           ),
