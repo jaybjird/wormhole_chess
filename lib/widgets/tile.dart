@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../model/chess_piece.dart';
 
@@ -134,8 +133,15 @@ class Tile extends StatelessWidget {
             clipper: TileClipper(path.translate(-rect.left, -rect.top)),
             child: Container(
               color: color,
-              // TODO: Replace font awesome icons
-              child: piece != null ? SvgPicture.asset(piece!.imagePath) : null,
+              child: piece == null ? null : Icon(
+                piece!.type.icon,
+                color: switch(piece!.player) {
+                  Player.white => Colors.white,
+                  Player.black => Colors.black,
+                  Player.amber => Colors.amber,
+                  Player.purple => Colors.purple,
+                },
+              ),
             ),
           ),
         )
