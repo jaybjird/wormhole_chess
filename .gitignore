@@ -48,3 +48,4 @@ app.*.map.json
 /macos/Runner/GoogleService-Info.plist
 /lib/firebase_options.dart
 /.firebase/hosting.YnVpbGQvd2Vi.cache
+/firepit-log.txt
