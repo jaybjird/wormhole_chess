@@ -15,40 +15,53 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
+final possibleStarts = {
+  Position(0, 3, 0): Direction.north,
+  Position(7, 4, 0): Direction.south,
+  Position(0, 3, 3): Direction.south,
+  Position(7, 4, 3): Direction.north,
+  Position(4, 0, 3): Direction.west,
+  Position(3, 7, 3): Direction.east,
+};
+
+Map<Position, ChessPiece> getInitialPositions(Player player, Position start) {
+  final dir = possibleStarts[start]!;
+  final p = start.rank == 0 || start.file == 0 ? 1 : 6;
+  final isKing = start.isWhite != (player == Player.white || player == Player.amber);
+
+  ChessPieceType getType(int i) => switch (i) {
+    0 || 7 => ChessPieceType.rook,
+    1 || 6 => ChessPieceType.knight,
+    2 || 5 => ChessPieceType.bishop,
+    _ => (i == start.file || i == start.rank) == isKing
+        ? ChessPieceType.king
+        : ChessPieceType.queen,
+  };
+
+  return switch (start.rank) {
+    0 || 7 => {
+      for (int file = 0; file < 8; file++)
+        Position(p, file, start.layer):
+        ChessPiece(player: player, direction: dir, type: ChessPieceType.pawn),
+      for (int file = 0; file < 8; file++)
+        Position(start.rank, file, start.layer):
+        ChessPiece(player: player, direction: dir, type: getType(file)),
+    },
+    _ => {
+      for (int rank = 0; rank < 8; rank++)
+        Position(rank, p, start.layer):
+        ChessPiece(player: player, direction: dir, type: ChessPieceType.pawn),
+      for (int rank = 0; rank < 8; rank++)
+        Position(rank, start.file, start.layer):
+        ChessPiece(player: player, direction: dir, type: getType(rank)),
+    },
+  };
+}
+
 class _GameScreenState extends State<GameScreen> {
   GameBoard board = GameBoard(turn: 1, board: {
-    Position(1, 0, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 1, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 2, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 3, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 4, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 5, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 6, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(1, 7, 0): ChessPiece(player: Player.white, type: ChessPieceType.pawn, direction: Direction.north),
-    Position(0, 0, 0): ChessPiece(player: Player.white, type: ChessPieceType.rook, direction: Direction.north),
-    Position(0, 1, 0): ChessPiece(player: Player.white, type: ChessPieceType.knight, direction: Direction.north),
-    Position(0, 2, 0): ChessPiece(player: Player.white, type: ChessPieceType.bishop, direction: Direction.north),
-    Position(0, 3, 0): ChessPiece(player: Player.white, type: ChessPieceType.queen, direction: Direction.north),
-    Position(0, 4, 0): ChessPiece(player: Player.white, type: ChessPieceType.king, direction: Direction.north),
-    Position(0, 5, 0): ChessPiece(player: Player.white, type: ChessPieceType.bishop, direction: Direction.north),
-    Position(0, 6, 0): ChessPiece(player: Player.white, type: ChessPieceType.knight, direction: Direction.north),
-    Position(0, 7, 0): ChessPiece(player: Player.white, type: ChessPieceType.rook, direction: Direction.north),
-    Position(6, 0, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 1, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 2, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 3, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 4, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 5, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 6, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(6, 7, 0): ChessPiece(player: Player.black, type: ChessPieceType.pawn, direction: Direction.south),
-    Position(7, 0, 0): ChessPiece(player: Player.black, type: ChessPieceType.rook, direction: Direction.south),
-    Position(7, 1, 0): ChessPiece(player: Player.black, type: ChessPieceType.knight, direction: Direction.south),
-    Position(7, 2, 0): ChessPiece(player: Player.black, type: ChessPieceType.bishop, direction: Direction.south),
-    Position(7, 3, 0): ChessPiece(player: Player.black, type: ChessPieceType.queen, direction: Direction.south),
-    Position(7, 4, 0): ChessPiece(player: Player.black, type: ChessPieceType.king, direction: Direction.south),
-    Position(7, 5, 0): ChessPiece(player: Player.black, type: ChessPieceType.bishop, direction: Direction.south),
-    Position(7, 6, 0): ChessPiece(player: Player.black, type: ChessPieceType.knight, direction: Direction.south),
-    Position(7, 7, 0): ChessPiece(player: Player.black, type: ChessPieceType.rook, direction: Direction.south),
+    ...getInitialPositions(Player.white, Position(0, 3, 0)),
+    ...getInitialPositions(Player.black, Position(7, 4, 0)),
   });
 
   Position? selected;
