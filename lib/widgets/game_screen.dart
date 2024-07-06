@@ -69,10 +69,16 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void selectStart(Position pos) {
+    // TODO: Move this logic out of the UI
+    final startPos = {...board.startPos, board.player: pos};
+    final possibleStart = GameBoard.getPossibleStarts(startPos.values);
+    if (possibleStart.length == 1) {
+      startPos[Player.amber] = possibleStart.first;
+    }
     setState(() => board = GameBoard.build(
           mode: board.mode,
-          start: pos,
-          player: Player.white,
+          startPos: startPos,
+          player: board.player == Player.purple ? Player.black : Player.white,
         ));
   }
 
@@ -86,8 +92,7 @@ class _GameScreenState extends State<GameScreen> {
     final sqrt_2 = sqrt(0.2);
     final sqrt_8 = sqrt_2 * 2;
 
-    final isStarted = board.isStarted;
-    final possibleStarts = isStarted ? [] : board.possibleStarts;
+    final possibleStarts = board.possibleStarts;
 
     List<Widget> tiles = [];
     for (final layer in [planeLayer, ringLayer]) {
@@ -354,7 +359,7 @@ class _GameScreenState extends State<GameScreen> {
           };
           final tile = Tile(
             path: tilePath,
-            onTap: isStarted
+            onTap: board.isStarted
                 ? validMoves.contains(pos) &&
                         board[selected]?.player == board.player
                     ? () => movePiece(pos)
@@ -363,7 +368,7 @@ class _GameScreenState extends State<GameScreen> {
                     ? () => selectStart(pos)
                     : () => {},
             isSelected: selected == pos,
-            isValidMove: isStarted
+            isValidMove: board.isStarted
                 ? validMoves.contains(pos)
                 : possibleStarts.contains(pos),
             isInvalidPawnAttack: invalidPawnAttacks.contains(pos),

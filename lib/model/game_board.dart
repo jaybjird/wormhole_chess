@@ -11,11 +11,10 @@ enum Mode {
 }
 
 final whiteStart = Position(0, 3, 0);
-final blackStart = Position(7, 4, 0);
 
 final _possibleStarts = {
   whiteStart: Direction.north,
-  blackStart: Direction.south,
+  Position(7, 4, 0): Direction.south,
   Position(0, 4, 3): Direction.south,
   Position(7, 3, 3): Direction.north,
   Position(4, 0, 3): Direction.west,
@@ -67,51 +66,48 @@ class Move {
 }
 
 class GameBoard {
-  final Map<Position, ChessPiece> _board;
-  final List<Move> _moves;
+  final Map<Position, ChessPiece> board;
+  final List<Move> moves;
   final Mode mode;
   final Player player;
+  final Map<Player, Position> startPos;
 
-  GameBoard.fromMode(this.mode)
-      : _moves = [],
-        player = mode == Mode.twoPlayer ? Player.black : Player.purple,
-        _board = {
-          ..._getInitialPositions(Player.white, whiteStart),
-          if (mode != Mode.twoPlayer)
-            ..._getInitialPositions(Player.black, blackStart),
-        };
+  GameBoard.fromMode(Mode mode) : this.build(
+    mode: mode,
+    startPos: {Player.white: whiteStart},
+    player: mode == Mode.twoPlayer ? Player.black : Player.purple,
+  );
 
-  GameBoard.build(
-      {required this.mode,
-      required Position start, // The start position of the last player
-      required this.player,
-      List<Move> moves = const []})
-      : _moves = moves,
-        _board = moves.fold({
-          ..._getInitialPositions(Player.white, whiteStart),
-          if (mode != Mode.twoPlayer)
-            ..._getInitialPositions(Player.black, blackStart),
-          ..._getInitialPositions(mode == Mode.twoPlayer ? Player.black : Player.purple, start),
-          if (mode != Mode.twoPlayer)
-            ..._getInitialPositions(Player.amber, Position(7 - start.rank, 7 - start.file, start.layer))
-        }, (board, move) => _movePiece(board, move));
+  GameBoard.build({
+    required this.mode,
+    required this.startPos, // The start position of the last player
+    required this.player,
+    this.moves = const [],
+  }) : board = moves.fold(
+          {
+            for (final entry in startPos.entries)
+              ..._getInitialPositions(entry.key, entry.value),
+          },
+          (board, move) => _movePiece(board, move),
+        );
 
-  GameBoard({
-    required Map<Position, ChessPiece> board,
-    required List<Move> moves,
+  const GameBoard({
+    required this.board,
+    required this.moves,
     required this.player,
     required this.mode,
-  }) : _board = board, _moves = moves;
+    required this.startPos,
+  });
 
-  ChessPiece? operator [](Position? pos) => _board[pos];
+  ChessPiece? operator [](Position? pos) => board[pos];
 
-  Position? getKing(Player player) => _board.keys.where((pos) =>
-  _board[pos]?.type == ChessPieceType.king &&
-      _board[pos]?.player == player).firstOrNull;
+  Position? getKing(Player player) => board.keys.where((pos) =>
+  board[pos]?.type == ChessPieceType.king &&
+      board[pos]?.player == player).firstOrNull;
 
   bool isKingInCheck(Player player) {
     final kingPosition = getKing(player);
-    return kingPosition == null || _board.entries.any((e) {
+    return kingPosition == null || board.entries.any((e) {
       final piece = e.value;
       if (piece.player == player) return false;
       final moves = getRawValidMoves(e.key, piece);
@@ -138,15 +134,15 @@ class GameBoard {
 
   List<(Position, Direction)> getPawnMoves(Position pos, ChessPiece pawn) {
     final moves1 = pos.nextCardinal(pawn.direction)
-        .where((move) => move.$1.inBoard && _board[move.$1] == null);
+        .where((move) => move.$1.inBoard && board[move.$1] == null);
     return [
       ...moves1,
       if (pawn.firstMoved == null)
         ...moves1
             .expand((move) => move.$1.nextCardinal(move.$2))
-            .where((move) => move.$1.inBoard && _board[move.$1] == null),
+            .where((move) => move.$1.inBoard && board[move.$1] == null),
       ...getPawnAttacks(pos, pawn).where((move) {
-        final piece = _board[move.$1];
+        final piece = board[move.$1];
         return piece != null && piece.player != pawn.player;
       }),
       // TODO: en passant
@@ -205,7 +201,7 @@ class GameBoard {
     };
     final Map<Position, Direction> moveMap = {};
     for (final (pos, dir) in moveList) {
-      if (!pos.inBoard || _board[pos]?.player == piece.player) continue;
+      if (!pos.inBoard || board[pos]?.player == piece.player) continue;
       moveMap[pos] = dir;
     }
     return moveMap;
@@ -219,7 +215,7 @@ class GameBoard {
         final (p, d) = move;
         if (p.inBoard && !moves.contains(move)) {
           moves.add(move);
-          if (_board[p] == null) {
+          if (board[p] == null) {
             next.addAll(p.nextDiagonal(d));
           }
         }
@@ -237,7 +233,7 @@ class GameBoard {
         final (p, d) = move;
         if (p.inBoard && !moves.contains(move)) {
           moves.add(move);
-          if (_board[p] == null) {
+          if (board[p] == null) {
             next.addAll(p.nextCardinal(d));
           }
         }
@@ -252,7 +248,7 @@ class GameBoard {
     while (true) {
       pos = pos.nextCardinal(dir).first.$1;
       if (!pos.inBoard) return false;
-      final piece = _board[pos];
+      final piece = board[pos];
       if (piece != null) {
         return piece.type == ChessPieceType.rook &&
             piece.firstMoved == null &&
@@ -276,11 +272,12 @@ class GameBoard {
       from: from,
       to: to,
       dir: dir,
-      turn: _moves.length,
+      turn: moves.length,
     );
     return GameBoard(
-      board: _movePiece(Map<Position, ChessPiece>.from(_board), move),
-      moves: [..._moves, move],
+      startPos: startPos,
+      board: _movePiece(Map<Position, ChessPiece>.from(board), move),
+      moves: [...moves, move],
       player: _nextPlayer,
       mode: mode,
     );
@@ -293,7 +290,7 @@ class GameBoard {
     int current = player.index;
     for (int i = (current + 1) % 4; i != current; i = (current + 1) % 4) {
       Player next = Player.values[i];
-      if (_board.values.any((piece) => piece.player == next)) {
+      if (board.values.any((piece) => piece.player == next)) {
         return next;
       }
     }
@@ -349,7 +346,7 @@ class GameBoard {
     int bestScore = -9999;
     List<(Position, Position, Direction)> bestMoves = [];
 
-    _board.forEach((from, piece) {
+    board.forEach((from, piece) {
       final moves = getRawValidMoves(from, piece);
       if (piece.player != player) return;
       moves.forEach((to, dir) {
@@ -376,7 +373,7 @@ class GameBoard {
     var best = {Player.white: 0, Player.black: 0};
     int bestScore = -9999;
 
-    _board.forEach((from, piece) {
+    board.forEach((from, piece) {
       final moves = getRawValidMoves(from, piece);
       counts[piece.player] = counts[piece.player]! + moves.length;
       if (piece.player != player) return;
@@ -399,16 +396,28 @@ class GameBoard {
 
   Map<Player, int> evaluateBoard() {
     final score = {Player.white: 0, Player.black: 0};
-    for (var piece in _board.values) {
+    for (var piece in board.values) {
       score[piece.player] = score[piece.player]! + piece.type.value;
     }
     return score;
   }
 
-  List<Position> get possibleStarts => [
-        for (final start in _possibleStarts.keys)
-          if (!_board.containsKey(start)) start,
-      ];
+  static List<Position> getPossibleStarts(Iterable<Position> taken) {
+    final takenSet = {
+      for (final pos in taken) ...[
+        pos,
+        Position(pos.file, pos.rank, pos.layer),
+        Position(7 - pos.file, 7 - pos.rank, pos.layer)
+      ],
+    };
+    return [
+      for (final pos in _possibleStarts.keys)
+        if (!takenSet.contains(pos))
+          pos
+    ];
+  }
 
-  bool get isStarted => player == Player.white || _moves.isNotEmpty;
+  List<Position> get possibleStarts => getPossibleStarts(startPos.values);
+
+  bool get isStarted => player == Player.white || moves.isNotEmpty;
 }
