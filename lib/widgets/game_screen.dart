@@ -15,54 +15,8 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-final possibleStarts = {
-  Position(0, 3, 0): Direction.north,
-  Position(7, 4, 0): Direction.south,
-  Position(0, 3, 3): Direction.south,
-  Position(7, 4, 3): Direction.north,
-  Position(4, 0, 3): Direction.west,
-  Position(3, 7, 3): Direction.east,
-};
-
-Map<Position, ChessPiece> getInitialPositions(Player player, Position start) {
-  final dir = possibleStarts[start]!;
-  final p = start.rank == 0 || start.file == 0 ? 1 : 6;
-  final isKing = start.isWhite != (player == Player.white || player == Player.amber);
-
-  ChessPieceType getType(int i) => switch (i) {
-    0 || 7 => ChessPieceType.rook,
-    1 || 6 => ChessPieceType.knight,
-    2 || 5 => ChessPieceType.bishop,
-    _ => (i == start.file || i == start.rank) == isKing
-        ? ChessPieceType.king
-        : ChessPieceType.queen,
-  };
-
-  return switch (start.rank) {
-    0 || 7 => {
-      for (int file = 0; file < 8; file++)
-        Position(p, file, start.layer):
-        ChessPiece(player: player, direction: dir, type: ChessPieceType.pawn),
-      for (int file = 0; file < 8; file++)
-        Position(start.rank, file, start.layer):
-        ChessPiece(player: player, direction: dir, type: getType(file)),
-    },
-    _ => {
-      for (int rank = 0; rank < 8; rank++)
-        Position(rank, p, start.layer):
-        ChessPiece(player: player, direction: dir, type: ChessPieceType.pawn),
-      for (int rank = 0; rank < 8; rank++)
-        Position(rank, start.file, start.layer):
-        ChessPiece(player: player, direction: dir, type: getType(rank)),
-    },
-  };
-}
-
 class _GameScreenState extends State<GameScreen> {
-  GameBoard board = GameBoard(turn: 1, board: {
-    ...getInitialPositions(Player.white, Position(0, 3, 0)),
-    ...getInitialPositions(Player.black, Position(7, 4, 0)),
-  });
+  GameBoard board = GameBoard.fromMode(Mode.fourPlayer);
 
   Position? selected;
 
@@ -114,6 +68,14 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
+  void selectStart(Position pos) {
+    setState(() => board = GameBoard.build(
+          mode: board.mode,
+          start: pos,
+          player: Player.white,
+        ));
+  }
+
   Widget _buildTiles(BuildContext context, BoxConstraints constraints, int planeLayer, int ringLayer) {
     // TODO: Should already be a square, due to having [AspectRatio] as the parent, but additional enforcement may be prudent
     final size = constraints.maxHeight / 8;
@@ -123,6 +85,9 @@ class _GameScreenState extends State<GameScreen> {
     final voidRadius = size;
     final sqrt_2 = sqrt(0.2);
     final sqrt_8 = sqrt_2 * 2;
+
+    final isStarted = board.isStarted;
+    final possibleStarts = isStarted ? [] : board.possibleStarts;
 
     List<Widget> tiles = [];
     for (final layer in [planeLayer, ringLayer]) {
@@ -389,11 +354,18 @@ class _GameScreenState extends State<GameScreen> {
           };
           final tile = Tile(
             path: tilePath,
-            onTap: validMoves.contains(pos) && board[selected]?.player == board.player
-                ? () => movePiece(pos)
-                : () => selectPiece(pos),
+            onTap: isStarted
+                ? validMoves.contains(pos) &&
+                        board[selected]?.player == board.player
+                    ? () => movePiece(pos)
+                    : () => selectPiece(pos)
+                : possibleStarts.contains(pos)
+                    ? () => selectStart(pos)
+                    : () => {},
             isSelected: selected == pos,
-            isValidMove: validMoves.contains(pos),
+            isValidMove: isStarted
+                ? validMoves.contains(pos)
+                : possibleStarts.contains(pos),
             isInvalidPawnAttack: invalidPawnAttacks.contains(pos),
             isThreatened: possibleMoves.containsKey(pos) &&
                 !validMoves.contains(pos),
@@ -417,7 +389,7 @@ class _GameScreenState extends State<GameScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 40),
-            Text("${board.turn % 2 == 1 ? "White" : "Black"}'s Turn"),
+            Text("${board.player.name}'s Turn"),
             Flexible(
               child: Center(
                 child: AspectRatio(

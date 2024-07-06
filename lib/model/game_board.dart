@@ -5,16 +5,103 @@ import 'package:wormhole_chess/model/position.dart';
 import 'chess_piece.dart';
 import 'direction.dart';
 
-class GameBoard {
-  final Map<Position, ChessPiece> _board;
+enum Mode {
+  twoPlayer,
+  fourPlayer,
+}
+
+final whiteStart = Position(0, 3, 0);
+final blackStart = Position(7, 4, 0);
+
+final _possibleStarts = {
+  whiteStart: Direction.north,
+  blackStart: Direction.south,
+  Position(0, 4, 3): Direction.south,
+  Position(7, 3, 3): Direction.north,
+  Position(4, 0, 3): Direction.west,
+  Position(3, 7, 3): Direction.east,
+};
+
+Map<Position, ChessPiece> _getInitialPositions(Player player, Position start) {
+  final dir = _possibleStarts[start]!;
+  final p = start.rank == 0 || start.file == 0 ? 1 : 6;
+  final isKing = start.isWhite != (player == Player.white || player == Player.amber);
+
+  ChessPieceType getType(int i) => switch (i) {
+    0 || 7 => ChessPieceType.rook,
+    1 || 6 => ChessPieceType.knight,
+    2 || 5 => ChessPieceType.bishop,
+    _ => (i == start.file || i == start.rank) == isKing
+        ? ChessPieceType.king
+        : ChessPieceType.queen,
+  };
+
+  return switch (start.rank) {
+    0 || 7 => {
+      for (int file = 0; file < 8; file++)
+        Position(p, file, start.layer):
+        ChessPiece(player: player, direction: dir, type: ChessPieceType.pawn),
+      for (int file = 0; file < 8; file++)
+        Position(start.rank, file, start.layer):
+        ChessPiece(player: player, direction: dir, type: getType(file)),
+    },
+    _ => {
+      for (int rank = 0; rank < 8; rank++)
+        Position(rank, p, start.layer):
+        ChessPiece(player: player, direction: dir, type: ChessPieceType.pawn),
+      for (int rank = 0; rank < 8; rank++)
+        Position(rank, start.file, start.layer):
+        ChessPiece(player: player, direction: dir, type: getType(rank)),
+    },
+  };
+}
+
+class Move {
+  final Player player;
+  final Position from;
+  final Position to;
+  final Direction dir;
   final int turn;
 
-  GameBoard({
-    this.turn = 1,
-    required Map<Position, ChessPiece> board,
-  }) : _board = board;
+  Move({required this.player, required this.from, required this.to, required this.dir, required this.turn});
+}
 
-  Player get player => Player.values[(turn + 1) % 2];
+class GameBoard {
+  final Map<Position, ChessPiece> _board;
+  final List<Move> _moves;
+  final Mode mode;
+  final Player player;
+
+  GameBoard.fromMode(this.mode)
+      : _moves = [],
+        player = mode == Mode.twoPlayer ? Player.black : Player.purple,
+        _board = {
+          ..._getInitialPositions(Player.white, whiteStart),
+          if (mode != Mode.twoPlayer)
+            ..._getInitialPositions(Player.black, blackStart),
+        };
+
+  GameBoard.build(
+      {required this.mode,
+      required Position start, // The start position of the last player
+      required this.player,
+      List<Move> moves = const []})
+      : _moves = moves,
+        _board = moves.fold({
+          ..._getInitialPositions(Player.white, whiteStart),
+          if (mode != Mode.twoPlayer)
+            ..._getInitialPositions(Player.black, blackStart),
+          ..._getInitialPositions(mode == Mode.twoPlayer ? Player.black : Player.purple, start),
+          if (mode != Mode.twoPlayer)
+            ..._getInitialPositions(Player.amber, Position(7 - start.rank, 7 - start.file, start.layer))
+        }, (board, move) => _movePiece(board, move));
+
+  GameBoard({
+    required Map<Position, ChessPiece> board,
+    required List<Move> moves,
+    required this.player,
+    required this.mode,
+  }) : _board = board, _moves = moves;
 
   ChessPiece? operator [](Position? pos) => _board[pos];
 
@@ -184,37 +271,66 @@ class GameBoard {
 
   /// Returns a new [GameBoard] where the [ChessPiece] at position [from] is moved to position [to] facing the given [Direction].
   GameBoard movePiece(Position from, Position to, Direction dir) {
-    final next = Map<Position, ChessPiece>.from(_board);
-    final piece = next.remove(from);
+    final move = Move(
+      player: player,
+      from: from,
+      to: to,
+      dir: dir,
+      turn: _moves.length,
+    );
+    return GameBoard(
+      board: _movePiece(Map<Position, ChessPiece>.from(_board), move),
+      moves: [..._moves, move],
+      player: _nextPlayer,
+      mode: mode,
+    );
+  }
+
+  Player get _nextPlayer {
+    if (mode == Mode.twoPlayer) {
+      return player != Player.white ? Player.white : Player.black;
+    }
+    int current = player.index;
+    for (int i = (current + 1) % 4; i != current; i = (current + 1) % 4) {
+      Player next = Player.values[i];
+      if (_board.values.any((piece) => piece.player == next)) {
+        return next;
+      }
+    }
+    return player;
+  }
+
+  static Map<Position, ChessPiece> _movePiece(Map<Position, ChessPiece> board, Move move) {
+    final piece = board.remove(move.from);
     if (piece != null) {
-      next[to] = ChessPiece.from(
+      board[move.to] = ChessPiece.from(
         from: piece,
-        firstMoved: piece.firstMoved ?? turn,
-        direction: dir,
+        firstMoved: piece.firstMoved ?? move.turn,
+        direction: move.dir,
       );
     }
 
     // Castle Logic
     if (piece?.type == ChessPieceType.king) {
-      final dRank = to.rank - from.rank;
-      final dFile = to.file - from.file;
-      final rook = next.remove(switch ((dRank, dFile)) {
-        (2, 0) => Position(7, to.file, to.layer),
-        (-2, 0) => Position(0, to.file, to.layer),
-        (0, 2) => Position(to.rank, 7, to.layer),
-        (0, -2) => Position(to.rank, 0, to.layer),
+      final dRank = move.to.rank - move.from.rank;
+      final dFile = move.to.file - move.from.file;
+      final rook = board.remove(switch ((dRank, dFile)) {
+        (2, 0) => Position(7, move.to.file, move.to.layer),
+        (-2, 0) => Position(0, move.to.file, move.to.layer),
+        (0, 2) => Position(move.to.rank, 7, move.to.layer),
+        (0, -2) => Position(move.to.rank, 0, move.to.layer),
         _ => null,
       });
       if (rook != null) {
         final rookTo = Position(
-          from.rank + dRank ~/ 2,
-          from.file + dFile ~/ 2,
-          from.layer,
+          move.from.rank + dRank ~/ 2,
+          move.from.file + dFile ~/ 2,
+          move.from.layer,
         );
-        next[rookTo] = ChessPiece.from(
+        board[rookTo] = ChessPiece.from(
           from: rook,
-          firstMoved: turn,
-          direction: dir.right(4),
+          firstMoved: move.turn,
+          direction: move.dir.right(4),
         );
       }
     }
@@ -226,10 +342,8 @@ class GameBoard {
     //     _board[to] == null) {
     //   next.remove((from.rank, to.file));
     // }
-
-    return GameBoard(turn: turn + 1, board: next);
+    return board;
   }
-
 
   (Position, Position, Direction) getBestMove(int depth) {
     int bestScore = -9999;
@@ -290,4 +404,11 @@ class GameBoard {
     }
     return score;
   }
+
+  List<Position> get possibleStarts => [
+        for (final start in _possibleStarts.keys)
+          if (!_board.containsKey(start)) start,
+      ];
+
+  bool get isStarted => player == Player.white || _moves.isNotEmpty;
 }
