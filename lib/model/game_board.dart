@@ -61,8 +61,16 @@ class Move {
   final Position to;
   final Direction dir;
   final int turn;
+  final ChessPieceType? promotion;
 
-  Move({required this.player, required this.from, required this.to, required this.dir, required this.turn});
+  Move({
+    required this.player,
+    required this.from,
+    required this.to,
+    required this.dir,
+    required this.turn,
+    this.promotion,
+  });
 }
 
 class GameBoard {
@@ -273,6 +281,7 @@ class GameBoard {
       to: to,
       dir: dir,
       turn: moves.length,
+      promotion: isPromotion(from, to) ? ChessPieceType.queen : null,
     );
     return GameBoard(
       startPos: startPos,
@@ -304,6 +313,7 @@ class GameBoard {
         from: piece,
         firstMoved: piece.firstMoved ?? move.turn,
         direction: move.dir,
+        type: move.promotion,
       );
     }
 
@@ -420,4 +430,19 @@ class GameBoard {
   List<Position> get possibleStarts => getPossibleStarts(startPos.values);
 
   bool get isStarted => player == Player.white || moves.isNotEmpty;
+
+
+  bool isPromotion(Position from, Position to) {
+    if (board[from]?.type != ChessPieceType.pawn) return false;
+
+    bool canPromote(bool Function(Position) test) =>
+        startPos.entries.any((e) => e.key != player &&
+            e.value.layer == to.layer && test(e.value));
+
+    return switch ((to.rank, to.file)) {
+      (0 || 7, _) when canPromote((pos) => pos.rank == to.rank) => true,
+      (_, 0 || 7) when canPromote((pos) => pos.file == to.file) => true,
+      _ => false
+    };
+  }
 }
