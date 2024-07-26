@@ -123,7 +123,7 @@ class GameBoard {
     });
   }
 
-  List<(Position, Direction)> getPawnAttacks(Position pos, ChessPiece pawn) {
+  static List<(Position, Direction)> getPawnAttacks(Position pos, ChessPiece pawn) {
     final dir = pawn.direction;
     final diagonals = pos.diagonals;
 
@@ -140,20 +140,68 @@ class GameBoard {
     return [(lPos, lDir), (rPos, rDir)];
   }
 
+  /// Returns the [Position] behind an attack for en passant calculations.
+  static Position getEnPassant(ChessPiece pawn, Position from, Position to) {
+    // TODO: figure out a cheaper solution
+    final moves = from.nextCardinal(pawn.direction);
+    final index = getPawnAttacks(from, pawn).indexWhere((e) => e.$1 == to);
+    late Position move;
+    switch (index) {
+      case 0: move = moves.first.$1;
+      case 1: move = moves.last.$1;
+      default: return from;
+    }
+    return Position(
+      from.rank + to.rank - move.rank,
+      from.file + to.file - move.file,
+      from.layer + to.layer - move.layer,
+    );
+  }
+
   List<(Position, Direction)> getPawnMoves(Position pos, ChessPiece pawn) {
     final moves1 = pos.nextCardinal(pawn.direction)
         .where((move) => move.$1.inBoard && board[move.$1] == null);
+
+    bool canAttack(Position attack) {
+      if (!attack.inBoard) return false;
+      // Check for a valid basic attack
+      if (board[attack] != null) return board[attack]!.player != pawn.player; // TODO: check for ally
+
+      // Check for en passant
+      // Calculate the taget position
+      final adjacent = getEnPassant(pawn, pos, attack);
+
+      // Check if the target is valid for en passant
+      final at = board[adjacent];
+      if (at == null) return false;
+      if (at.player == pawn.player) return false; // TODO: check for ally
+      if (at.type != ChessPieceType.pawn) return false;
+      // Check that the target piece's first move was on its player's last turn
+      if (moves.lastIndexWhere((move) => move.player == at.player) != at.firstMoved) return false;
+
+      // Check that the target piece had move forward two spaces
+      final prev = moves[at.firstMoved!].from; // previous if guarantees null safety
+      return switch ((
+        prev.rank - adjacent.rank,
+        prev.file - adjacent.file,
+        prev.layer - adjacent.layer,
+      )) {
+        (-2 || 2, 0, 0) => true, // moved two ranks
+        (0, -2 || 2, 0) => true, // moved two files
+        // these checks only work because pawns always outside the wormhole
+        (-1 || 1, 0, -1 || 1) => true, // moved one rank and one layer
+        (0, -1 || 1, -1 || 1) => true, // moved one file and one layer
+        _ => false,
+      };
+    }
+
     return [
       ...moves1,
       if (pawn.firstMoved == null)
         ...moves1
             .expand((move) => move.$1.nextCardinal(move.$2))
             .where((move) => move.$1.inBoard && board[move.$1] == null),
-      ...getPawnAttacks(pos, pawn).where((move) {
-        final piece = board[move.$1];
-        return piece != null && piece.player != pawn.player;
-      }),
-      // TODO: en passant
+      ...getPawnAttacks(pos, pawn).where((move) => canAttack(move.$1)),
     ];
   }
 
@@ -308,17 +356,25 @@ class GameBoard {
 
   static Map<Position, ChessPiece> _movePiece(Map<Position, ChessPiece> board, Move move) {
     final piece = board.remove(move.from);
-    if (piece != null) {
-      board[move.to] = ChessPiece.from(
-        from: piece,
-        firstMoved: piece.firstMoved ?? move.turn,
-        direction: move.dir,
-        type: move.promotion,
-      );
+    if (piece == null || !move.to.inBoard) return board;
+
+    // En Passant Logic
+    if (piece.type == ChessPieceType.pawn &&
+        board[move.to] == null &&
+        getPawnAttacks(move.from, piece).any((m) => m.$1 == move.to)) {
+      board.remove(getEnPassant(piece, move.from, move.to));
     }
 
+    // Move the piece
+    board[move.to] = ChessPiece.from(
+      from: piece,
+      firstMoved: piece.firstMoved ?? move.turn,
+      direction: move.dir,
+      type: move.promotion,
+    );
+
     // Castle Logic
-    if (piece?.type == ChessPieceType.king) {
+    if (piece.type == ChessPieceType.king) {
       final dRank = move.to.rank - move.from.rank;
       final dFile = move.to.file - move.from.file;
       final rook = board.remove(switch ((dRank, dFile)) {
@@ -341,14 +397,6 @@ class GameBoard {
         );
       }
     }
-
-    // TODO: En Passant
-    // if (piece?.type == ChessPieceType.pawn &&
-    //     from.file != to.file // is an attack
-    //     &&
-    //     _board[to] == null) {
-    //   next.remove((from.rank, to.file));
-    // }
     return board;
   }
 

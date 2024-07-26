@@ -16,7 +16,7 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  GameBoard board = GameBoard.fromMode(Mode.fourPlayer);
+  GameBoard board = GameBoard.fromMode(Mode.twoPlayer);
 
   Position? selected;
 
@@ -34,7 +34,7 @@ class _GameScreenState extends State<GameScreen> {
         validMoves = board.getRealValidMoves(pos, piece);
         invalidPawnAttacks = [
           if (piece.type == ChessPieceType.pawn)
-            for (final attack in board.getPawnAttacks(pos, piece))
+            for (final attack in GameBoard.getPawnAttacks(pos, piece))
               if (!validMoves.contains(attack)) attack.$1,
         ];
       } else {
