@@ -80,6 +80,13 @@ class GameBoard {
   final Player player;
   final Map<Player, Position> startPos;
 
+  GameBoard.empty()
+      : startPos = {},
+        moves = [],
+        mode = Mode.twoPlayer,
+        player = Player.white,
+        board = {};
+
   GameBoard.fromMode(Mode mode) : this.build(
     mode: mode,
     startPos: {Player.white: whiteStart},
@@ -88,7 +95,7 @@ class GameBoard {
 
   GameBoard.build({
     required this.mode,
-    required this.startPos, // The start position of the last player
+    required this.startPos,
     required this.player,
     this.moves = const [],
   }) : board = moves.fold(

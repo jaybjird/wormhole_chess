@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:wormhole_chess/service/game_service.dart';
 import 'package:wormhole_chess/widgets/tile.dart';
 
 import '../model/chess_piece.dart';
@@ -9,14 +10,15 @@ import '../model/game_board.dart';
 import '../model/position.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final String? gameId;
+  const GameScreen({super.key, this.gameId});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
-  GameBoard board = GameBoard.fromMode(Mode.twoPlayer);
+  GameBoard board = GameBoard.empty();
 
   Position? selected;
 
@@ -47,13 +49,11 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void movePiece(Position to) {
+    final dir = possibleMoves[to];
+    if (selected == null || dir == null) return; // TODO: error
+    final next = board.movePiece(selected!, to, dir);
     setState(() {
-      final dir = possibleMoves[to];
-      if (selected != null && dir != null) {
-        board = board.movePiece(selected!, to, dir);
-      } else {
-        // TODO: error
-      }
+      board = next;
       selected = null;
       validMoves = [];
       possibleMoves = {};
@@ -66,6 +66,7 @@ class _GameScreenState extends State<GameScreen> {
         print("Black in check");
       }
     });
+    GameService().movePiece(widget.gameId, next.moves.last, next.player);
   }
 
   void selectStart(Position pos) {
@@ -75,11 +76,13 @@ class _GameScreenState extends State<GameScreen> {
     if (possibleStart.length == 1) {
       startPos[Player.amber] = possibleStart.first;
     }
-    setState(() => board = GameBoard.build(
-          mode: board.mode,
-          startPos: startPos,
-          player: board.player == Player.purple ? Player.black : Player.white,
-        ));
+    final next = GameBoard.build(
+      mode: board.mode,
+      startPos: startPos,
+      player: board.player == Player.purple ? Player.black : Player.white,
+    );
+    setState(() => board = next);
+    GameService().updateStartPos(widget.gameId, next);
   }
 
   Widget _buildTiles(BuildContext context, BoxConstraints constraints, int planeLayer, int ringLayer) {
@@ -390,30 +393,37 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       body: Container(
         color: Colors.blue,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 40),
-            Text("${board.player.name}'s Turn"),
-            Flexible(
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 3, 2)),
+        child: StreamBuilder<GameBoard?>(
+          stream: GameService().streamGame(widget.gameId),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) print(snapshot.stackTrace);
+            if (snapshot.hasData && snapshot.data != null) board = snapshot.data!;
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                Text("${board.player.name}'s Turn"),
+                Flexible(
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 3, 2)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox.square(dimension: 20),
-            Flexible(
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 0, 1)),
+                const SizedBox.square(dimension: 20),
+                Flexible(
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: LayoutBuilder(builder: (context, constraints) => _buildTiles(context, constraints, 0, 1)),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
+                const SizedBox(height: 20),
+              ],
+            );
+          }
         ),
       ),
     );

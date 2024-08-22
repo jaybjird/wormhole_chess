@@ -4,6 +4,12 @@ class Position {
   final int rank, file, layer; // TODO: rank and file are being used backwards
   final Direction? _ringSide;
 
+  Position.fromString(String s) : this(
+    s.codeUnitAt(1) - 97,
+    s.codeUnitAt(2) - 49,
+    s.codeUnitAt(0) - 48,
+  );
+
   Position(this.rank, this.file, this.layer)
       : _ringSide = switch ((rank, file)) {
   // Null if not part of the ring
@@ -22,7 +28,7 @@ class Position {
   get isWhite => (rank + file + layer) % 2 == 1;
 
   @override
-  String toString() => 'Position{rank: $rank, file: $file, layer: $layer}';
+  String toString() => '$layer${String.fromCharCode(97 + rank)}${file + 1}';
 
   /// Calculating the diagonal in a single pass is hard.
   /// Calculate the neighboring cardinal directions instead, and find where
@@ -182,4 +188,6 @@ class Position {
 
   @override
   int get hashCode => rank.hashCode ^ file.hashCode ^ layer.hashCode;
+
+
 }

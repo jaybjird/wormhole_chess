@@ -3,10 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:wormhole_chess/model/game_board.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wormhole_chess/service/game_service.dart';
 
 import 'firebase_options.dart';
+import 'model/game_board.dart';
 import 'widgets/game_screen.dart';
 
 void main() async {
@@ -17,18 +18,17 @@ void main() async {
   runApp(const MyApp());
 }
 
-final GoRouter _router = GoRouter(
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const LandingScreen(),
-    ),
-    GoRoute(
-      path: '/games',
-      builder: (context, state) => const GameScreen(),
-    ),
-  ]
-);
+final GoRouter _router = GoRouter(routes: [
+  GoRoute(
+    path: '/',
+    builder: (context, state) => const LandingScreen(),
+  ),
+  GoRoute(
+    path: '/games/:gameId',
+    builder: (context, state) =>
+        GameScreen(gameId: state.pathParameters["gameId"]),
+  ),
+]);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -70,7 +70,8 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () => showDialog(context: context, builder: (ctx) => NewGameDialog()),
+                onPressed: () => showDialog(
+                    context: context, builder: (ctx) => NewGameDialog()),
                 icon: const Icon(FontAwesomeIcons.chessBoard),
                 label: const Text("New Game"),
               ),
@@ -86,7 +87,8 @@ class _LandingScreenState extends State<LandingScreen> {
                   icon: const Icon(FontAwesomeIcons.google),
                   label: const Text("Sign In With Google"),
                 ),
-                onError: (error) => print("$error"), // TODO: log error and toast user
+                onError: (error) =>
+                    print("$error"), // TODO: log error and toast user
               ),
             ],
           ),
@@ -148,9 +150,13 @@ class _NewGameDialogState extends State<NewGameDialog> {
 
   set fourPlayer(bool selection) => setState(() => isFourPlayer = selection);
 
-  void _startGame(BuildContext context) {
-    // TODO: create a new game with the given state and pass the ID to game screen
-    context.go('/games');
+  Future<void> _startGame(BuildContext context) async {
+    final gameId = await GameService()
+        .newGame(isFourPlayer ? Mode.fourPlayer : Mode.twoPlayer)
+        .then((doc) => doc.id);
+    // TODO: Loading spinner
+    // TODO: Resolve async gap
+    context.go("/games/$gameId");
   }
 
   @override
