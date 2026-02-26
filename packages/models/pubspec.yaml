@@ -1,0 +1,10 @@
+name: wormhole_chess_models
+description: Shared models for Wormhole Chess client-server communication
+version: 1.0.0
+publish_to: "none"
+
+environment:
+  sdk: ">=3.2.3 <4.0.0"
+
+dev_dependencies:
+  lints: ^3.0.0

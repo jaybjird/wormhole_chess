@@ -9,6 +9,7 @@ This guide covers setting up the development environment for the Wormhole Chess 
 - Terminal access
 - Flutter SDK
 - Dart SDK
+- Melos (for monorepo management)
 
 ## Flutter Installation
 
@@ -22,10 +23,16 @@ Follow the official [Flutter installation guide](https://docs.flutter.dev/get-st
 flutter doctor
 ```
 
-### 3. Install Project Dependencies
+### 3. Install Melos
 
 ```bash
-flutter pub get
+dart pub global activate melos
+```
+
+### 4. Install Project Dependencies
+
+```bash
+melos get
 ```
 
 ## Node.js Installation (using NVM)
@@ -116,13 +123,27 @@ wormhole_chess/
 ├── .mcp-config.json        # MCP server configuration (committed)
 ├── .env.example            # Example environment variables (committed)
 ├── .env                    # Local environment variables (gitignored)
+├── melos.yaml              # Melos monorepo configuration
 ├── docs/
 │   └── setup.md           # This setup guide
-├── lib/                    # Flutter/Dart source code
-├── android/                # Android platform code
-├── ios/                    # iOS platform code
-├── web/                    # Web platform code
-└── ...                     # Other platform directories
+├── packages/
+│   ├── app/               # Flutter UI application
+│   │   ├── lib/           # Flutter app source code
+│   │   ├── android/       # Android platform code
+│   │   ├── ios/           # iOS platform code
+│   │   ├── linux/         # Linux platform code
+│   │   ├── macos/         # macOS platform code
+│   │   ├── web/           # Web platform code
+│   │   ├── windows/       # Windows platform code
+│   │   └── pubspec.yaml   # Flutter app dependencies
+│   ├── engine/            # Core chess engine (terminal game)
+│   │   ├── bin/           # Executable scripts
+│   │   ├── lib/           # Engine source code
+│   │   └── pubspec.yaml   # Engine dependencies
+│   └── models/            # Shared client-server models
+│       ├── lib/           # Model definitions
+│       └── pubspec.yaml   # Model dependencies
+└── pubspec.yaml           # Root workspace configuration
 ```
 
 ## Security Notes
@@ -157,6 +178,34 @@ wormhole_chess/
 - Review the [NVM documentation](https://github.com/nvm-sh/nvm)
 - Consult the project's issue tracker for platform-specific issues
 
+## Development Commands
+
+### Running the Applications
+
+```bash
+# Run Flutter app
+melos dev:app
+
+# Run terminal chess engine
+melos dev:engine
+```
+
+### Code Quality
+
+```bash
+# Format all Dart code
+melos format
+
+# Analyze all Dart code
+melos analyze
+
+# Clean Flutter packages
+melos clean
+
+# Upgrade dependencies
+melos upgrade
+```
+
 ## How to Play
 
 1. **Standard Chess Rules**: All traditional chess rules apply
@@ -182,5 +231,6 @@ After completing setup:
 
 1. Explore the project milestones using the GitHub MCP
 2. Set up your preferred development environment (VS Code, Android Studio, etc.)
-3. Review the Flutter/Dart codebase in the `lib/` directory
-4. Check the project's README for additional development guidelines
+3. Review the Flutter/Dart codebase in `packages/app/lib/`
+4. Check the chess engine structure in `packages/engine/lib/`
+5. Examine shared models in `packages/models/lib/`

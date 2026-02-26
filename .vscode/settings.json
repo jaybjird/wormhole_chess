@@ -1,10 +1,12 @@
 {
   "dart.lineLength": 80,
-  "editor.rulers": [80],
+  "editor.rulers": [
+    80
+  ],
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.organizeImports": true
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
   },
   "editor.bracketPairColorization.enabled": true,
   "dart.previewFlutterUiGuides": true,
@@ -34,7 +36,6 @@
     "**/ios/build/**": true
   },
   "melos.workspaces": [
-    "apps/*",
     "packages/*"
   ],
   "files.exclude": {

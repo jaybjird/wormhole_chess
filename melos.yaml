@@ -1,0 +1,51 @@
+name: wormhole_chess
+packages:
+  - packages/*
+  - .
+
+scripts:
+  # Development scripts
+  dev:app:
+    run: flutter run
+    description: Run Flutter app in development mode
+    exec:
+      packageFilters:
+        scope: wormhole_chess_app
+
+  # Game engine scripts
+  dev:engine:
+    run: dart run bin/main.dart
+    description: Run terminal chess game
+    exec:
+      packageFilters:
+        scope: wormhole_chess_engine
+
+  # Code quality scripts
+  format:
+    run: dart format .
+    description: Format all Dart code
+  analyze:
+    run: dart analyze
+    description: Analyze all Dart code
+
+  # Clean scripts
+  clean:
+    run: flutter clean
+    description: Clean Flutter packages
+    exec:
+      packageFilters:
+        scope: wormhole_chess_app
+
+  # Dependency management
+  get:
+    run: flutter pub get
+    description: Get dependencies
+    exec:
+      packageFilters:
+        scope: wormhole_chess_app
+  upgrade:
+    run: flutter pub upgrade
+    description: Upgrade dependencies
+    exec:
+      packageFilters:
+        scope: wormhole_chess_app

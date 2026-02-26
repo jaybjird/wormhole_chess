@@ -1,0 +1,14 @@
+name: wormhole_chess_engine
+description: Core chess engine for Wormhole Chess
+version: 1.0.0
+publish_to: "none"
+
+environment:
+  sdk: ">=3.2.3 <4.0.0"
+
+dependencies:
+  models:
+    path: ../models
+
+dev_dependencies:
+  lints: ^3.0.0
