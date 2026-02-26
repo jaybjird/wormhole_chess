@@ -48,7 +48,7 @@
     "**/build/**",
     "**/.dart_tool/**"
   ],
-  "yaml.schemas": [
-    "https://json.schemastore.org/melos.json"
-  ]
+  "yaml.schemas": {
+    "melos.yaml": "https://json.schemastore.org/melos.json"
+  }
 }
