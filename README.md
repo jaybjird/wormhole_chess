@@ -20,6 +20,10 @@ Wormhole Chess is an innovative chess variant that adds teleportation mechanics 
 
 For detailed development setup instructions, see the [Setup Guide](docs/setup.md).
 
+## Project Structure
+
+For a complete overview of the project directory structure, see [Project Structure](project-structure.md).
+
 ### Quick Start
 
 1. Clone the repository:
