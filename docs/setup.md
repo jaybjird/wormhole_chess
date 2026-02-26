@@ -7,6 +7,26 @@ This guide covers setting up the development environment for the Wormhole Chess 
 - macOS (development environment)
 - Git
 - Terminal access
+- Flutter SDK
+- Dart SDK
+
+## Flutter Installation
+
+### 1. Install Flutter SDK
+
+Follow the official [Flutter installation guide](https://docs.flutter.dev/get-started/install) for your platform.
+
+### 2. Verify Installation
+
+```bash
+flutter doctor
+```
+
+### 3. Install Project Dependencies
+
+```bash
+flutter pub get
+```
 
 ## Node.js Installation (using NVM)
 
@@ -124,6 +144,25 @@ wormhole_chess/
 - Check the [GitHub MCP documentation](https://github.com/modelcontextprotocol/servers)
 - Review the [NVM documentation](https://github.com/nvm-sh/nvm)
 - Consult the project's issue tracker for platform-specific issues
+
+## How to Play
+
+1. **Standard Chess Rules**: All traditional chess rules apply
+2. **Wormholes**: Special squares on the board allow pieces to teleport
+3. **Teleportation**: When a piece lands on a wormhole, it can instantly move to any other wormhole
+4. **Custom Placement**: Set up your pieces in unique starting positions
+5. **Asynchronous Play**: Take turns at your own pace with cloud sync
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+### Development Guidelines
+
+- Follow Flutter/Dart coding standards
+- Write clear, commented code
+- Test your changes thoroughly
+- Update documentation as needed
 
 ## Next Steps
 
