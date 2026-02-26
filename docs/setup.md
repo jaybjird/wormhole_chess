@@ -1,0 +1,135 @@
+# Development Setup
+
+This guide covers setting up the development environment for the Wormhole Chess project, including GitHub MCP integration.
+
+## Prerequisites
+
+- macOS (development environment)
+- Git
+- Terminal access
+
+## Node.js Installation (using NVM)
+
+### 1. Install NVM (Node Version Manager)
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+```
+
+### 2. Reload Shell Configuration
+
+```bash
+source ~/.zshrc
+```
+
+### 3. Install Node.js LTS
+
+```bash
+nvm install --lts
+```
+
+### 4. Verify Installation
+
+```bash
+node --version
+npm --version
+```
+
+## GitHub MCP Setup
+
+### 1. Create GitHub Personal Access Token
+
+1. Go to GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Click "Generate new token (classic)"
+3. Give it a descriptive name (e.g., "Wormhole Chess MCP")
+4. Set an appropriate expiration
+5. Select the following permissions:
+   - **repo** - Full control of private repositories
+   - **workflows** - Update GitHub Action workflows
+6. Click "Generate token"
+7. **Important**: Copy the token immediately as you won't see it again
+
+### 2. Configure Environment Variables
+
+Copy the example environment file and add your GitHub token:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and replace `your_github_token_here` with your actual GitHub token.
+
+Alternatively, add the GitHub token to your shell profile:
+
+```bash
+echo 'export GITHUB_TOKEN=your_actual_token_here' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### 3. Verify GitHub MCP Connection
+
+The project includes a `.mcp-config.json` file that configures the GitHub MCP server. Test the connection using curl:
+
+```bash
+curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/jaybjird/wormhole_chess/milestones
+```
+
+You should see a JSON response with the project milestones.
+
+## Project Structure
+
+```
+wormhole_chess/
+├── .gitignore              # Git ignore rules (includes secrets)
+├── .mcp-config.json        # MCP server configuration (committed)
+├── .env.example            # Example environment variables (committed)
+├── .env                    # Local environment variables (gitignored)
+├── docs/
+│   └── setup.md           # This setup guide
+├── lib/                    # Flutter/Dart source code
+├── android/                # Android platform code
+├── ios/                    # iOS platform code
+├── web/                    # Web platform code
+└── ...                     # Other platform directories
+```
+
+## Security Notes
+
+- **Never commit** your `.env` file or actual tokens to version control
+- The `.env.example` file is committed as a template for developers
+- The `.mcp-config.json` file is **committed** to share the MCP configuration, but it only references the `${GITHUB_TOKEN}` environment variable
+- Use environment variables for all sensitive configuration
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Command not found: npm**
+   - Ensure NVM is properly installed and loaded
+   - Run `source ~/.zshrc` to reload shell configuration
+   - Verify with `which npm` and `which node`
+
+2. **GitHub API returns 401 Bad credentials**
+   - Check that `GITHUB_TOKEN` is set correctly: `echo $GITHUB_TOKEN`
+   - Ensure the token has the required permissions
+   - Verify the token hasn't expired
+
+3. **MCP server not found**
+   - Ensure the MCP configuration file is properly formatted
+   - Check that your IDE supports MCP and can read the configuration
+   - Verify the repository name is correct in the config
+
+### Getting Help
+
+- Check the [GitHub MCP documentation](https://github.com/modelcontextprotocol/servers)
+- Review the [NVM documentation](https://github.com/nvm-sh/nvm)
+- Consult the project's issue tracker for platform-specific issues
+
+## Next Steps
+
+After completing setup:
+
+1. Explore the project milestones using the GitHub MCP
+2. Set up your preferred development environment (VS Code, Android Studio, etc.)
+3. Review the Flutter/Dart codebase in the `lib/` directory
+4. Check the project's README for additional development guidelines
