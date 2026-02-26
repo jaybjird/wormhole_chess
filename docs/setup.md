@@ -96,6 +96,18 @@ curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/jaybji
 
 You should see a JSON response with the project milestones.
 
+## IDE Setup
+
+### Install Recommended Extensions
+
+The project includes a `.vscode/extensions.json` file with recommended extensions for Windsurf/VS Code:
+
+1. Open Windsurf or VS Code
+2. Go to the Extensions view (Ctrl+Shift+X or Cmd+Shift+X)
+3. Use the "Extensions: Install Extensions" command and the IDE will prompt you to install the recommended extensions automatically
+
+Alternatively, you can manually search for and install the extensions listed in the `.vscode/extensions.json` file.
+
 ## Project Structure
 
 ```

@@ -1,0 +1,53 @@
+{
+  "dart.lineLength": 80,
+  "editor.rulers": [80],
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true
+  },
+  "editor.bracketPairColorization.enabled": true,
+  "dart.previewFlutterUiGuides": true,
+  "dart.debugExternalLibraries": false,
+  "dart.debugSdkLibraries": false,
+  "dart.enableCompletionCommitCharacters": true,
+  "dart.enableSnippets": true,
+  "dart.evaluateGettersInDebugViews": true,
+  "files.associations": {
+    "*.dart": "dart"
+  },
+  "search.exclude": {
+    "**/.git": true,
+    "**/.dart_tool": true,
+    "**/.flutter-plugins": true,
+    "**/.flutter-plugins-dependencies": true,
+    "**/build": true,
+    "**/android/app/build": true,
+    "**/ios/build": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.dart_tool/**": true,
+    "**/build/**": true,
+    "**/android/app/build/**": true,
+    "**/ios/build/**": true
+  },
+  "melos.workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "files.exclude": {
+    "**/.dart_tool": true,
+    "**/.flutter-plugins": true,
+    "**/.flutter-plugins-dependencies": true,
+    "**/build": true
+  },
+  "dart.analysisExcludedFolders": [
+    "**/build/**",
+    "**/.dart_tool/**"
+  ],
+  "yaml.schemas": [
+    "https://json.schemastore.org/melos.json"
+  ]
+}
