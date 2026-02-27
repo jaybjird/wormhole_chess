@@ -5,8 +5,6 @@ This document outlines the complete directory structure of the Wormhole Chess pr
 ```
 wormhole_chess/
 ├── .gitignore              # Git ignore rules (includes secrets)
-├── .mcp-config.json        # MCP server configuration (committed)
-├── .env.example            # Example environment variables (committed)
 ├── .env                    # Local environment variables (gitignored)
 ├── melos.yaml              # Melos monorepo configuration
 ├── .windsurf/              # Windsurf AI assistant configuration

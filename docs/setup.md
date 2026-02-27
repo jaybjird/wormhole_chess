@@ -76,32 +76,42 @@ npm --version
 6. Click "Generate token"
 7. **Important**: Copy the token immediately as you won't see it again
 
-### 2. Configure Environment Variables
+### 2. Configure Global MCP
 
-Copy the example environment file and add your GitHub token:
+Add the GitHub MCP server to your global MCP configuration file (usually located at `~/.codeium/windsurf/mcp_config.json` or similar):
 
-```bash
-cp .env.example .env
+```json
+{
+  "mcpServers": {
+    "github-mcp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<GITHUB_PAT_HERE>"
+      }
+    }
+  }
+}
 ```
 
-Edit `.env` and replace `your_github_token_here` with your actual GitHub token.
+Replace `<GITHUB_PAT_HERE>` with your actual GitHub Personal Access Token.
 
-Alternatively, add the GitHub token to your shell profile:
+### 3. Restart Your IDE
 
-```bash
-echo 'export GITHUB_TOKEN=your_actual_token_here' >> ~/.zshrc
-source ~/.zshrc
-```
+After updating the MCP configuration, restart Windsurf/VS Code to load the new MCP server.
 
-### 3. Verify GitHub MCP Connection
+### 4. Verify GitHub MCP Connection
 
-The project includes a `.mcp-config.json` file that configures the GitHub MCP server. Test the connection using curl:
+Test the connection using curl:
 
 ```bash
-curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/jaybjird/wormhole_chess/milestones
+curl -H "Authorization: token <YOUR_TOKEN>" https://api.github.com/repos/jaybjird/wormhole_chess/milestones
 ```
 
-You should see a JSON response with the project milestones.
+Replace `<YOUR_TOKEN>` with your actual GitHub token. You should see a JSON response with the project milestones.
 
 ## IDE Setup
 
@@ -117,10 +127,9 @@ Alternatively, you can manually search for and install the extensions listed in 
 
 ## Security Notes
 
-- **Never commit** your `.env` file or actual tokens to version control
-- The `.env.example` file is committed as a template for developers
-- The `.mcp-config.json` file is **committed** to share the MCP configuration, but it only references the `${GITHUB_TOKEN}` environment variable
+- **Never commit** your MCP configuration file with actual tokens to version control
 - Use environment variables for all sensitive configuration
+- Keep your GitHub Personal Access Token secure and rotate it regularly
 
 ## Troubleshooting
 
@@ -132,14 +141,14 @@ Alternatively, you can manually search for and install the extensions listed in 
    - Verify with `which npm` and `which node`
 
 2. **GitHub API returns 401 Bad credentials**
-   - Check that `GITHUB_TOKEN` is set correctly: `echo $GITHUB_TOKEN`
+   - Check that your GitHub token is set correctly in the MCP configuration
    - Ensure the token has the required permissions
    - Verify the token hasn't expired
 
 3. **MCP server not found**
-   - Ensure the MCP configuration file is properly formatted
-   - Check that your IDE supports MCP and can read the configuration
-   - Verify the repository name is correct in the config
+   - Ensure the MCP configuration file is properly formatted JSON
+   - Check that your IDE supports MCP and can read the global configuration
+   - Restart your IDE after updating the MCP configuration
 
 ### Getting Help
 

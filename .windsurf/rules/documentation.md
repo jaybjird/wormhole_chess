@@ -6,6 +6,7 @@
 - Check for existing documentation that provides project context
 - Look for setup guides, architecture decisions, and API specifications
 - Review any TODO items or documented requirements
+- Use the GitHub MCP to pull down the Milestones and open Issues tagged with Story for additional context
 
 ## Code Review Documentation Rules
 
