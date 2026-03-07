@@ -6,7 +6,8 @@
 ## State Management
 - **Riverpod** (enforced via riverpod_lint)
 
-## Backend / BaaS
+## Database & Persistence
+- **Drift** (Offline persistence and local database)
 - **Appwrite** (Database, Authentication, Edge Functions, Hosting)
 
 ## Monorepo Architecture
@@ -15,7 +16,6 @@
 ## CI/CD & DevOps
 - **GitHub Actions** (Automated PR validation and testing)
 - **Fastlane** (Automated mobile app store deployments)
-- **Lefthook** (Pre-commit hooks for local formatting)
 
 ## Observability & Error Tracking
 - **Talker** (talker_flutter, talker_riverpod_logger for runtime logging and state tracking)
