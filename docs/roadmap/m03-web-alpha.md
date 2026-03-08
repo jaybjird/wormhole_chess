@@ -13,18 +13,19 @@
 - In this flat representation, the two main playing planes will be rendered side-by-side (like the open covers of a book), but they are *only* connected through the central "Wormhole" tunnel (e.g., a central ring or designated transfer zone), not along the edges or a "spine".
 - Ensure this unified flat board clearly delineates the two planes and the connective tunnel, while remaining responsive across different screen sizes.
 
-### 3. UI Testing Suite (TDD)
-- Establish a Flutter Widget Testing suite in `packages/app/test/` to automate UI validation.
-- Implement tests verifying that the custom board representation correctly renders the expected number of squares and planes based on the Engine state.
-- Ensure widget tests are integrated into the GitHub Actions CI pipeline alongside the engine unit tests.
+### 3. UI Testing Suite (Live & Integration)
+- Establish a robust testing framework allowing for both automated integration tests and live visual validation.
+- Create dummy Appwrite client configurations that can be shared between the test framework and the local Flutter code to simulate network states and specific player setups.
+- Ensure the testing environment allows for rapid TDD of the board UI logic.
 
-### 4. Basic Piece Assets & Rendering
+### 4. Basic Piece Assets & State Management Scaffolding
 - Integrate open-source vector piece assets (e.g., SVG or PNG).
-- Render pieces dynamically based on the current engine state, attaching them to the correct planar or tunnel coordinates.
-- Create a Provider to listen to the `GameState` from the core engine.
+- Setup the architectural scaffolding for state-driven animations and optimistic UI early on. 
+- Create a clear separation in Riverpod between the "Local UI State" (which drives immediate visual changes like tap-to-move animations) and the "Engine Truth State" (the validated board state). This ensures that future network rollbacks won't cause jarring UI flickering.
+- Render pieces dynamically based on the current UI state, attaching them to the correct planar or tunnel coordinates.
 
-### 5. Interactive Move Handling & Selection UI
-- Implement tap-to-select, tap-to-move and drag-and-drop functionality for pieces.
+### 5. Interactive Move Handling (Tap-to-Move)
+- Implement tap-to-select and tap-to-move functionality for pieces (avoid drag-and-drop to bypass complexity over the disjointed torus representation).
 - Highlight legal destination squares when a piece is selected.
 - Add visual indicators for "last move" and "check".
 - Connect UI actions (drags/taps) back to the engine's `makeMove` function.

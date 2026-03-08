@@ -1,4 +1,4 @@
-# Milestone 13: The Launchpad
+# Milestone 12: The Launchpad
 **Goal:** Formalize the production pipelines and successfully publish the compiled application to all major mobile and desktop storefronts. This milestone tracks the platform-specific code signing, metadata generation, and store review processes required to graduate from beta testing to public availability.
 
 ## Tasks (Future Issues)

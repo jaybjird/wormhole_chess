@@ -3,10 +3,11 @@
 
 ## Tasks (Future Issues)
 
-### 1. Board Representation & Coordinate System
+### 1. Modular Board Representation & Coordinate System
 - Define the board representation in Dart (`packages/engine/lib/src/board.dart`) as a partial torus, accounting for two planar surfaces connected by a central tunnel (e.g., 2 rings of 12 tiles).
-- Implement a custom coordinate system and mathematical model to map standard squares and the curved topology of the "Wormhole" tunnel.
-- Employ Test-Driven Development (TDD) by writing unit tests for board initialization and coordinate mapping before implementation.
+- Implement a custom, algorithmically driven coordinate system and mathematical model to map standard squares and calculate movement across the curved topology.
+- Design the engine architecture to be highly modular. Encapsulate the core movement logic behind clear interfaces so that underlying data structures (e.g., Object-Oriented arrays vs. future bitboard optimizations) can be swapped out later without breaking the public API.
+- Employ Test-Driven Development (TDD) by writing extensive unit tests for board initialization and coordinate mapping. These tests will serve as a safety harness for future refactoring.
 
 ### 2. Topological Movement Primitives
 - Implement core units of movement across the non-Euclidean board.
@@ -24,6 +25,7 @@
 - Implement Castling, En Passant, and Pawn Promotion logic adapted for the board layout.
 - Create a game state tracker (`packages/engine/lib/src/game_state.dart`) to store move history, current turn, and active player.
 - Ensure state models are designed to be flexible enough to support N-players (e.g., up to 4 players) in the future.
+- Pre-solve and test N-player threat/check detection logically in this phase so it scales efficiently before implementing UI.
 
 ### 5. Check, Checkmate, and Stalemate Detection
 - Implement logic to detect if a King is in Check along any valid topological path.
