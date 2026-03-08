@@ -5,8 +5,7 @@
 
 ### 1. Drift Local Database Setup
 - Integrate `drift` and `drift_flutter` into `packages/app/pubspec.yaml`.
-<!-- TODO: We should consider annotating the same objects for both Appwrite and Drift to avoid code duplication -->
-- Define the local database schema (Tables: `LocalGames`, `LocalMoves`, `LocalSettings`).
+- Define the local database schema (Tables: `LocalGames`, `LocalMoves`, `LocalSettings`). Ensure that models are annotated for both Appwrite (`json_serializable`) and Drift where possible to minimize code duplication.
 - Generate the boilerplate Drift classes using `build_runner`.
 
 ### 2. Dependency Injection & Repository Layer

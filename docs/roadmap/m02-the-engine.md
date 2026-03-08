@@ -4,38 +4,35 @@
 ## Tasks (Future Issues)
 
 ### 1. Board Representation & Coordinate System
-- Define the board representation in Dart (`packages/engine/lib/src/board.dart`).
-- Implement the coordinate system to handle standard squares and "Wormhole" special squares.
-- Write unit tests for board initialization.
+- Define the board representation in Dart (`packages/engine/lib/src/board.dart`) as a partial torus, accounting for two planar surfaces connected by a central tunnel (e.g., 2 rings of 12 tiles).
+- Implement a custom coordinate system and mathematical model to map standard squares and the curved topology of the "Wormhole" tunnel.
+- Employ Test-Driven Development (TDD) by writing unit tests for board initialization and coordinate mapping before implementation.
 
-### 2. Basic Piece Definitions & Movement Logic
+### 2. Topological Movement Primitives
+- Implement core units of movement across the non-Euclidean board.
+- Calculate directional vectors (cardinal and diagonal) and define how they transition between the flat planes and the curved tunnel.
+- Define behavior for moving across wormhole corners with 5 adjacent squares.
+- Write extensive unit tests to validate spatial relationships and movement vectors.
+
+### 3. Basic Piece Definitions & Movement Logic
 - Define base classes/enums for standard chess pieces (`packages/engine/lib/src/pieces/`).
-<!-- TODO: Due to the topology of the board, our first task is to implement core units of movement. What direction is a piece moving in, and how does that interact with the wormhole? How do wormhole corners with 5 adjacent squares work? How do we calculate cardinal and diagonal movements in this context? Once that is done we can implement the standard movement and capturing rules for each piece.-->
-- Implement standard movement and capturing rules for Pawns, Knights, Bishops, Rooks, Queens, and Kings.
-- Write unit tests validating standard piece movements.
+- Implement standard movement and capturing rules for Pawns, Knights, Bishops, Rooks, Queens, and Kings using the new topological movement primitives.
+- Write TDD unit tests validating piece movements across the planes and through the tunnel.
 
-### 3. Special Moves & State Tracking
-- Implement Castling logic (King and Rook movement, checking for previous moves, and checking if squares are under attack).
-- Implement En Passant logic (tracking previous pawn double-moves).
-- Implement Pawn Promotion logic.
+### 4. Special Moves, State Tracking, & King Placement
+- Implement the "King Placement" mechanic: Black starts the game by selecting a valid starting position for their King.
+- Implement Castling, En Passant, and Pawn Promotion logic adapted for the board layout.
 - Create a game state tracker (`packages/engine/lib/src/game_state.dart`) to store move history, current turn, and active player.
+- Ensure state models are designed to be flexible enough to support N-players (e.g., up to 4 players) in the future.
 
-### 4. Check, Checkmate, and Stalemate Detection
-- Implement logic to detect if a King is in Check.
-- Implement logic to determine Checkmate (no legal moves available to escape Check).
-- Implement logic to determine Stalemate (no legal moves available, but not in Check).
+### 5. Check, Checkmate, and Stalemate Detection
+- Implement logic to detect if a King is in Check along any valid topological path.
+- Implement logic to determine Checkmate and Stalemate.
 - Implement the 50-move rule and Threefold Repetition draws.
 
-### 5. Wormhole Teleportation Mechanics
-<!-- TODO: The wormhole mechanic is not an instant teleport. Rather the board is a partial torus and the wormhole is a path that connects two planes of the board through a tunnel in the center. This complex but also the core distinguishing feature of the game, so this needs to be baked into the board representation and movement logic from the start.-->
-- Implement the core "Wormhole" mechanic: allow pieces landing on a designated wormhole square to instantly teleport to any other designated wormhole square.
-- Update move generation to include teleportation options.
-- Write unit tests specifically for wormhole edge cases (e.g., teleporting into check, blocking paths).
-<!-- TODO: black should start the game by selecting a valid starting position for their king -->
-
-### 6. Terminal Interface (CLI)
+### 6. Terminal Interface (CLI) & CI Setup
+- Configure GitHub Actions to automatically run `melos format`, `melos analyze`, and `melos test` on every PR to enforce CI/CD standards early.
 - Create a simple CLI runner in `packages/engine/bin/engine.dart`.
-- Implement a text-based board visualizer (ASCII/Unicode).
-<!-- TODO: we'll need custom move notation since the board consists of 2 planes,
-and 2 rings of 12 tiles in the tunnel between them.-->
-- Implement text parsing for standard algebraic notation (SAN) or coordinate notation (e.g., `e2e4`) to allow users to play a game via the terminal.
+- Implement a text-based or rudimentary ASCII board visualizer for the CLI.
+- Design and implement a custom move notation system to account for the complex board topology (2 planes, 2 rings of 12 tiles).
+- Implement text parsing for the custom notation to allow CLI gameplay.

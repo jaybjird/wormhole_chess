@@ -13,16 +13,14 @@
 - Trigger a specific, short tooltip explaining *why* the move was invalid based on the piece type.
 - Ensure these reminders only appear for a limited number of times before staying silent to avoid annoyance.
 
-### 3. "Wormhole" Specific Contextual Guidance
-<!-- TODO: Reconsider based on the correct board layout mentioned elsewhere -->
-- When a user selects a piece that has a valid wormhole path, subtly highlight the wormhole entrance and exit.
-- If a user attempts an invalid wormhole move (e.g., trying to enter a blocked wormhole), show a tooltip explaining the blocking rule.
-- If a user clicks a wormhole square directly, provide a brief tooltip explaining its function.
+### 3. Topological Contextual Guidance
+- Provide subtle UI highlights indicating movement paths across the board's complex topology when a piece is selected.
+- If a user attempts an invalid move (e.g., trying to move linearly across a corner where the topology curves), show a tooltip explaining the directional rules of the torus.
 
-### 4. Interactive "Puzzle" Onboarding
-- Replace the static text-based tutorials from Milestone 4 with highly interactive, single-move puzzles.
-- E.g., "Find the mate in 1 using the wormhole."
-- The game only proceeds when the user finds the correct solution.
+### 4. Interactive Tutorial Scenarios
+- Implement interactive, single-move puzzles focusing on the non-Euclidean mechanics (e.g., "Find the mate in 1 across the tunnel").
+- Build an overlay system that restricts interaction until the specific tutorial move is successfully executed.
+- Create a sequence covering spatial orientation, diagonal transitions into the tunnel, and edge cases.
 
 ### 5. First-Time User Experience (FTUE) Flow
 - Create a streamlined flow for a brand-new app installation.

@@ -6,6 +6,9 @@
 ## State Management
 - **Riverpod** (enforced via riverpod_lint)
 
+## Navigation & Routing
+- **Go Router** (Navigation and deep links)
+
 ## Database & Persistence
 - **Drift** (Offline persistence and local database)
 - **Appwrite** (Database, Authentication, Edge Functions, Hosting)

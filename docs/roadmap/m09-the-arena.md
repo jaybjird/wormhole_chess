@@ -4,8 +4,8 @@
 ## Tasks (Future Issues)
 
 ### 1. Robust Authentication & User Profiles
+- Implement profile creation flow during onboarding (prompting to upgrade from Guest account or link email/OAuth providers).
 - Create a `Users` collection in Appwrite database to store profiles (username, avatar URL, created date).
-- Implement profile creation flow during onboarding (prompting to upgrade from Guest account).
 
 ### 2. Player Rating System (Elo/Glicko)
 - Implement a rating calculation algorithm (e.g., Elo or Glicko-2) on the server (Appwrite Edge Function).

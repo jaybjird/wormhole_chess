@@ -5,7 +5,6 @@ This document outlines the complete directory structure of the Wormhole Chess pr
 ```
 wormhole_chess/
 ├── .gitignore              # Git ignore rules (includes secrets)
-├── .env                    # Local environment variables (gitignored)
 ├── melos.yaml              # Melos monorepo configuration
 ├── .windsurf/              # Windsurf AI assistant configuration
 │   └── rules/              # Development rules and guidelines

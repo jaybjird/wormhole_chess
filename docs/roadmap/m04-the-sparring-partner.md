@@ -16,20 +16,6 @@
 - Implement an artificial delay (e.g., 500ms) before the bot makes its move so it feels "human-like" and doesn't instantly snap.
 - Add an "opponent is thinking..." visual indicator to the UI.
 
-### 4. Interactive Tutorial Data Structure
-<!-- TODO: The first pass of the tutorial should be very basic. Something like a help bar, or glossary that the user can open and look through on their own. More sophisticated tutorials will be added later. -->
-- Define a `TutorialStep` model containing: initial FEN, target move(s), explanatory text, and success conditions.
-- Create a JSON or Dart list of predefined tutorial scenarios focusing on standard moves and wormhole mechanics.
-
-### 5. Tutorial UI Overlay & Progression Logic
-<!-- TODO: We can skip this until the mentor milestone -->
-- Implement a Flutter overlay (`lib/src/features/tutorial/presentation/`) displaying the tutorial text and a "Next" or "Skip" button.
-- Implement logic to load the specific tutorial FEN into the board.
-- Restrict user interaction to *only* allow the correct tutorial move.
-- Upon successful execution of the tutorial move, advance to the next step.
-
-### 6. Wormhole Specific Tutorials
-<!-- TODO: We'll need something like this, but again, the wormhole is the topology of the board, so we'll need to think about how to present this in a way that's intuitive to the user. -->
-- Create a tutorial specifically demonstrating moving onto a wormhole.
-- Create a tutorial demonstrating capturing via a wormhole.
-- Create a tutorial demonstrating blocking a wormhole exit or handling occupied wormholes.
+### 4. Interactive Help Bar & Glossary
+- Implement a collapsible "Help Bar" or floating Glossary panel in the UI.
+- Populate the glossary with static text and basic diagrams explaining piece movements, topological board rules, and basic mechanics.
