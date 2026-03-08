@@ -16,9 +16,8 @@
 
 ### 3. Asynchronous Multiplayer Game Creation
 - Implement a "Create Multiplayer Game" button on the home screen.
-<!-- TODO: We won't be implementing a lobby until the arena milestone -->
-- Implement a "Waiting for Opponent" lobby screen.
-- Upon clicking "Create", generate a new Game document in Appwrite and navigate to the lobby.
+- Upon clicking "Create", generate a new Game document in Appwrite.
+- The UI should immediately transition to the active game board (waiting for player 2), bypassing a complex lobby screen for now.
 
 ### 4. Shareable Link Generation & Joining
 - Implement an Appwrite Edge Function (or direct client code) to generate a unique invite link.

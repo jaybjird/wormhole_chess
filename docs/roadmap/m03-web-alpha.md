@@ -8,40 +8,35 @@
 - Setup Riverpod `ProviderScope` in the main Flutter app (`packages/app/lib/main.dart`).
 - Initialize Talker for app-wide logging.
 
-### 2. 3D Board UI (Curved Topology)
-<!-- TODO: The current plan is to render the board in 2D, or 2.5D, possibly using
-a custom painter, though additional research may be needed. For the first pass of
-the UI, imagine the board as a book, with the top and bottom planes being the
-two covers, and the tunnel being a hole in the center. If you were to open the
-book, lay it flat pages down, and do a top down view of the cover, that is our
-MVP representation of the board. -->
-- Research and implement a 3D rendering solution (e.g., using `flame` or a custom painter) to accurately represent the curved space and the central tunnel of the wormhole board.
-- Implement camera controls (pan, zoom, rotate) to allow users to inspect both planes and the tunnel.
-- Ensure the 3D board remains performant on both web and mobile platforms.
+### 2. 2D "Book" Board UI (Curved Topology MVP)
+- Implement a 2D or 2.5D rendering solution (e.g., a custom painter or stacked grid views) that conceptually represents the torus as an "open book" viewed from the top down.
+- In this flat representation, the left and right "pages" represent the top and bottom planes of the board, and the center spine represents the flattened tunnel.
+- Ensure this unified flat board is responsive across different screen sizes.
 
-<!-- TODO: Build out a testing suite for the UI to automate testing, make
-manual validation easier, and allow for test driven development. Possibly using
-widget tests. -->
+### 3. UI Testing Suite (TDD)
+- Establish a Flutter Widget Testing suite in `packages/app/test/` to automate UI validation.
+- Implement tests verifying that the custom board representation correctly renders the expected number of squares and planes based on the Engine state.
+- Ensure widget tests are integrated into the GitHub Actions CI pipeline alongside the engine unit tests.
 
-### 3. Basic Piece Assets & Rendering
+### 4. Basic Piece Assets & Rendering
 - Integrate open-source vector piece assets (e.g., SVG or PNG).
 - Render pieces dynamically based on the current engine state, attaching them to the correct planar or tunnel coordinates.
 - Create a Provider to listen to the `GameState` from the core engine.
 
-### 4. Interactive Move Handling & Selection UI
+### 5. Interactive Move Handling & Selection UI
 - Implement tap-to-select, tap-to-move and drag-and-drop functionality for pieces.
 - Highlight legal destination squares when a piece is selected.
 - Add visual indicators for "last move" and "check".
 - Connect UI actions (drags/taps) back to the engine's `makeMove` function.
 
-### 5. Appwrite Project Setup & Basic Hosting Config
+### 6. Appwrite Project Setup & Basic Hosting Config
 - Create the Appwrite project on the Appwrite Cloud console.
 - Configure custom domains or default Appwrite Sites URLs.
 - Setup Appwrite MCP for streamlined infrastructure management.
 - Setup the Appwrite Flutter SDK in `packages/app/pubspec.yaml`.
 - Update `docs/setup.md` with Appwrite MCP and project initialization instructions.
 
-### 6. Appwrite Sites Deployment & SRE Setup
+### 7. Appwrite Sites Deployment & SRE Setup
 - Integrate `sentry_flutter` for early crash reporting on the web client.
 - Configure a GitHub Action (`.github/workflows/deploy-web.yml`) to run tests, build the Flutter web app (`flutter build web`), and automatically generate sourcemaps for Sentry.
 - Add the Appwrite CLI step to deploy the `build/web` directory to Appwrite Hosting upon push/merge to the `main` branch.
