@@ -28,3 +28,9 @@
 - [ ] Does this code change require documentation updates?
 - [ ] Are API changes documented?
 - [ ] Is setup guide still accurate?
+
+## Git Workflow Rules
+
+- [ ] I will not push commits to origin without user review
+- [ ] All code changes require user approval before being pushed to remote repositories
+- [ ] Commits should be locally staged but not pushed until explicitly reviewed and approved

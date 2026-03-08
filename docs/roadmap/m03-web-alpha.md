@@ -8,10 +8,10 @@
 - Setup Riverpod `ProviderScope` in the main Flutter app (`packages/app/lib/main.dart`).
 - Initialize Talker for app-wide logging.
 
-### 2. 2D "Book" Board UI (Curved Topology MVP)
-- Implement a 2D or 2.5D rendering solution (e.g., a custom painter or stacked grid views) that conceptually represents the torus as an "open book" viewed from the top down.
-- In this flat representation, the left and right "pages" represent the top and bottom planes of the board, and the center spine represents the flattened tunnel.
-- Ensure this unified flat board is responsive across different screen sizes.
+### 2. 2D "Folded Space" Board UI (Curved Topology MVP)
+- Implement a 2D or 2.5D rendering solution (e.g., a custom painter or stacked grid views) that conceptually represents the torus as a folded sheet of space with a tunnel pierced through the center.
+- In this flat representation, the two main playing planes will be rendered side-by-side (like the open covers of a book), but they are *only* connected through the central "Wormhole" tunnel (e.g., a central ring or designated transfer zone), not along the edges or a "spine".
+- Ensure this unified flat board clearly delineates the two planes and the connective tunnel, while remaining responsive across different screen sizes.
 
 ### 3. UI Testing Suite (TDD)
 - Establish a Flutter Widget Testing suite in `packages/app/test/` to automate UI validation.
