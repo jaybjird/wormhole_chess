@@ -27,5 +27,5 @@
 
 ### 5. Realtime Board State Synchronization (Optimistic UI)
 - Implement Appwrite Realtime subscriptions on the `Games` and `Moves` collections, updating the local Drift repository.
-- Update the Riverpod `GameStateNotifier` to react to Drift database changes.
+- Update the UI BLoC (`GameStateBloc`) to react to Drift database changes via GetIt repository injection.
 - Implement Optimistic UI updates for local moves: the UI should immediately reflect the move, with logic to rollback state if the server sync fails.

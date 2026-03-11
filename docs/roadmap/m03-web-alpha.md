@@ -5,7 +5,7 @@
 
 ### 1. Flutter Project Initialization & Dependency Wiring
 - Ensure `packages/app/pubspec.yaml` properly references `packages/engine` and `packages/models` via `path:` dependency.
-- Setup Riverpod `ProviderScope` in the main Flutter app (`packages/app/lib/main.dart`).
+- Setup BLoC (`flutter_bloc`) and GetIt (`get_it`) for state management and dependency injection in the main Flutter app (`packages/app/lib/main.dart`).
 - Initialize Talker for app-wide logging.
 
 ### 2. 2D "Folded Space" Board UI (Curved Topology MVP)
@@ -21,7 +21,7 @@
 ### 4. Basic Piece Assets & State Management Scaffolding
 - Integrate open-source vector piece assets (e.g., SVG or PNG).
 - Setup the architectural scaffolding for state-driven animations and optimistic UI early on. 
-- Create a clear separation in Riverpod between the "Local UI State" (which drives immediate visual changes like tap-to-move animations) and the "Engine Truth State" (the validated board state). This ensures that future network rollbacks won't cause jarring UI flickering.
+- Create a clear separation using BLoC between the "Local UI State" (which drives immediate visual changes like tap-to-move animations) and the "Engine Truth State" (the validated board state). This ensures that future network rollbacks won't cause jarring UI flickering.
 - Render pieces dynamically based on the current UI state, attaching them to the correct planar or tunnel coordinates.
 
 ### 5. Interactive Move Handling (Tap-to-Move)

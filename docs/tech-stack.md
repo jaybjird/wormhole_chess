@@ -1,10 +1,14 @@
 # Tech Stack
 
 ## Frontend & Core Engine
-- **Flutter & Pure Dart**
+- **Flutter**
+- **Dart**
 
 ## State Management
-- **Riverpod** (enforced via riverpod_lint)
+- **BLoC** (for State Management)
+
+## Dependency Injection
+- **GetIt** (for Dependency Injection)
 
 ## Navigation & Routing
 - **Go Router** (Navigation and deep links)
